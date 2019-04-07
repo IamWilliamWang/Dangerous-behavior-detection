@@ -106,15 +106,16 @@ def GetStaticFrame_Edges(videoFilename, startFrameRate = 0, outputEdgesFilename=
 
 
 videoFilename = '开关柜.mp4'
-staticEdges = GetStaticFrame_Edges(videoFilename, startFrameRate=4/5, outputEdgesFilename='output.mp4')  # 获得不动的物体
-cv2.imshow('static edges', staticEdges)
-cv2.waitKey(2000)
-lines = GetLines(staticEdges, 100)
+#for rateI in range(10):  # 当rateI=7时，人没有挡住线段
+staticEdges = GetStaticFrame_Edges(videoFilename, startFrameRate=7/10, outputEdgesFilename='out.mp4')  # 获得不动的物体
+cv2.imshow('static_edges'+str(7), staticEdges)
+cv2.waitKey(1500)
+lines = GetLines(staticEdges, threshold=200)
 # 获得第一帧
 videoInput = cv2.VideoCapture(videoFilename)
 _, firstFrame = videoInput.read()
-# 向这帧画线
-WriteLinesOnImage(firstFrame, lines, 2)
-cv2.imshow('result', firstFrame)
+# 向这帧图像画线
+WriteLinesOnImage(firstFrame, lines, lineCount=3)
+cv2.imshow('result'+str(7), firstFrame)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
