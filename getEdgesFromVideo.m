@@ -1,6 +1,6 @@
 function [edgeFrames] = getEdgesFromVideo(videoName)
 % 从视频文件中读取所有edges(Canny)并返回四维数组结果
-% 四位数组为[帧宽,帧高,帧深度=1,总帧数]
+% 四位数组为[帧宽,帧高,通道数=1,总帧数]
 % 输入参数：[videoName]文件名
     video = VideoReader(videoName);%读取视频
     frames=[]; %储存所有的帧

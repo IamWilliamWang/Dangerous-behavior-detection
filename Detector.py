@@ -30,17 +30,18 @@ size = (int(videoInput.get(cv2.CAP_PROP_FRAME_WIDTH)),
 
 frameCount = videoInput.get(cv2.CAP_PROP_FRAME_COUNT)
 staticBW = None
-videoInput.set(cv2.CAP_PROP_POS_FRAMES, int(frameCount*3/4)) #从视频的3/4处开始截取
+videoInput.set(cv2.CAP_PROP_POS_FRAMES, int(frameCount*3/4))  # 从视频的3/4处开始读取
 while videoInput.isOpened():
     ret, frame = videoInput.read()
     if ret is False:
         break
     grayImg = BGR2Gray(frame)  # 变灰度图
+    grayImg = cv2.GaussianBlur(grayImg, (3, 3), 0)  # 高斯模糊，去除图像中不必要的细节
     edgeFrame = Gray2Edge(grayImg)  # 边缘识别
     if staticBW is None:
-        staticBW = edgeFrame
+        staticBW = edgeFrame  # 初始化staticBW
     else:
-        staticBW &= edgeFrame
+        staticBW &= edgeFrame  # 做与运算，不同点会被去掉
     #output.write(edgeFrame)  # 写入边缘识别结果
     #cv2.imshow('frame', edgeFrame)
     #if cv2.waitKey(2) & 0xFF == ord('q'):
@@ -51,4 +52,3 @@ videoInput.release()
 cv2.imshow('static BW', staticBW)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-

@@ -1,6 +1,6 @@
 function [result] = getStaticFrame(edgesFrame,startFrame,endFrame,step)
 % 由edges四维数组提取出维持不动的像素点
-% 返回[帧宽，帧高，帧深度=1]
+% 返回[帧宽，帧高，通道数=1]
 % 输入参数：[edgesFrame]四维图像数组,[startFrame=1]开始帧,[endFrame=帧数]结束帧,[step]循环步伐
     [width,height,depth,frameCount]=size(edgesFrame);
     if nargin<4
