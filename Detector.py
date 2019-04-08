@@ -172,11 +172,13 @@ def CutVideo(oldVideoFilename, newVideoFilename, fromFrame, toFrame):
 def main():
     # videoFilename = '开关柜.mp4'
     # for rateI in range(10):  # 当rateI=7时，人没有挡住线段
-    videoFilename = '开关柜2.mp4'
+    videoFilename = '开关柜3.mp4'
     constFrame = None  # 储存基准帧
     compareLineCount = 3  # 比较几条线
-    for segmentIndex in range(0, 10):
-        segmentRate = 1 / 10;
+    videoClipCount = 26  # 10、26
+
+    for segmentIndex in range(0, videoClipCount):
+        segmentRate = 1 / videoClipCount
         videoInput = cv2.VideoCapture(videoFilename)
         videoFps = int(videoInput.get(cv2.CAP_PROP_FPS))
         staticEdges = GetStaticFrame_Edges(videoFilename, startFrameRate=segmentRate * segmentIndex,
@@ -184,7 +186,7 @@ def main():
                                            outputEdgesFilename=None)  # 获得不动的物体
         # cv2.imshow('static_edges' + str(segmentIndex), staticEdges)
         # cv2.waitKey(1500)
-        lines = GetLines(staticEdges, threshold=10)
+        lines = GetLines(staticEdges, threshold=50)
         if constFrame is None:
             constFrame = lines  # 以第一段视频检测出的线为基准（因为第一段视频没有人）
         else:
@@ -202,9 +204,9 @@ def main():
         _, firstFrame = videoInput.read()
         # 向这帧图像画线
         WriteLinesOnImage(firstFrame, lines, compareLineCount)
-        cv2.imshow('result' + str(segmentIndex), firstFrame)
-        cv2.waitKey(500)
-        cv2.destroyAllWindows()
+        # cv2.imshow('result' + str(segmentIndex), firstFrame)
+        # cv2.waitKey(100)
+        # cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
-*.idea/
+.idea/
 *.mp4
 *.avi
-*.pytest_cache/
+.pytest_cache/
+outputs/
