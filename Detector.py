@@ -19,6 +19,8 @@ def Otsu_canny(image, lowrate=0.1):
     # return the edged image
     return edged
 
+def putText(img, text):
+    cv2.putText(img, text, (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 2, cv2.LINE_AA)
 
 def BGR2Gray(BGR):
     '''
@@ -72,7 +74,7 @@ def WriteLinesOnImage(img, lines, lineCount=1):
 
 
 FirstFramePosition = None
-
+LastFramePosition = None
 
 def GetStaticFrame_Edges(videoFilename, startFrameRate=0., endFrameRate=1., outputEdgesFilename=None):
     '''
@@ -88,18 +90,19 @@ def GetStaticFrame_Edges(videoFilename, startFrameRate=0., endFrameRate=1., outp
     fps = videoInput.get(cv2.CAP_PROP_FPS)
     size = (int(videoInput.get(cv2.CAP_PROP_FRAME_WIDTH)),
             int(videoInput.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-    frameCount = videoInput.get(cv2.CAP_PROP_FRAME_COUNT)
+    frame_count = videoInput.get(cv2.CAP_PROP_FRAME_COUNT)
     if outputEdgesFilename is not None:
         outputVideo = cv2.VideoWriter(outputEdgesFilename, cv2.VideoWriter_fourcc(*'DIVX'), fps, size,
                                       False)  # MPEG-4编码
     staticBW = None
-    videoInput.set(cv2.CAP_PROP_POS_FRAMES, int(frameCount * startFrameRate))  # 从视频的3/4处开始读取
+    videoInput.set(cv2.CAP_PROP_POS_FRAMES, int(frame_count * startFrameRate))  # 从视频的3/4处开始读取
     global FirstFramePosition  # 记录第一帧的位置
-    FirstFramePosition = int(frameCount * startFrameRate)
-    lastFramesCount = frameCount
+    global LastFramePosition
+    FirstFramePosition = int(frame_count * startFrameRate)
+    LastFramePosition = int(frame_count * endFrameRate)
     if endFrameRate != 1:
-        lastFramesCount = int(frameCount * (endFrameRate - startFrameRate))
-    while videoInput.isOpened() and lastFramesCount >= 0:
+        frame_count = int(frame_count * (endFrameRate - startFrameRate))
+    while videoInput.isOpened() and frame_count >= 0:
         ret, frame = videoInput.read()
         if ret is False:
             break
@@ -111,7 +114,7 @@ def GetStaticFrame_Edges(videoFilename, startFrameRate=0., endFrameRate=1., outp
             staticBW &= edgeFrame  # 做与运算，不同点会被去掉
         if outputEdgesFilename is not None:
             outputVideo.write(edgeFrame)  # 写入边缘识别结果
-        lastFramesCount -= 1
+        frame_count -= 1
         # cv2.imshow('frame', edgeFrame)
         # if cv2.waitKey(2) & 0xFF == ord('q'):
         #   break
@@ -172,10 +175,10 @@ def CutVideo(oldVideoFilename, newVideoFilename, fromFrame, toFrame):
 def main():
     # videoFilename = '开关柜.mp4'
     # for rateI in range(10):  # 当rateI=7时，人没有挡住线段
-    videoFilename = '开关柜3.mp4'
+    videoFilename = '开关柜2.mp4'
     constFrame = None  # 储存基准帧
     compareLineCount = 3  # 比较几条线
-    videoClipCount = 26  # 10、26
+    videoClipCount = 10  # 10、26
 
     for segmentIndex in range(0, videoClipCount):
         segmentRate = 1 / videoClipCount
@@ -186,6 +189,7 @@ def main():
                                            outputEdgesFilename=None)  # 获得不动的物体
         # cv2.imshow('static_edges' + str(segmentIndex), staticEdges)
         # cv2.waitKey(1500)
+        error = False
         lines = GetLines(staticEdges, threshold=50)
         if constFrame is None:
             constFrame = lines  # 以第一段视频检测出的线为基准（因为第一段视频没有人）
@@ -198,15 +202,21 @@ def main():
             else:
                 # CutVideo(videoFilename, 'ExceptionVideo' + str(startFrameIndex) + '.mp4', startFrameIndex, endFrameIndex)
                 print('检测到异常！！', startFrameIndex / videoFps, '-', endFrameIndex / videoFps, '秒', sep='')
+                error = True
 
         # 获得检测线条的视频片段第一帧
         videoInput.set(cv2.CAP_PROP_POS_FRAMES, FirstFramePosition)
-        _, firstFrame = videoInput.read()
-        # 向这帧图像画线
-        WriteLinesOnImage(firstFrame, lines, compareLineCount)
-        # cv2.imshow('result' + str(segmentIndex), firstFrame)
-        # cv2.waitKey(100)
-        # cv2.destroyAllWindows()
+        for i in range(FirstFramePosition,LastFramePosition):
+            _, frame = videoInput.read()
+            # 向这帧图像画线
+            # WriteLinesOnImage(frame, lines, compareLineCount)
+            if error:
+                putText(frame, 'Warning')
+
+            cv2.imshow('result', frame)
+            if cv2.waitKey(1) is 27:  # Esc按下
+                break
+            # cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':

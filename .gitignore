@@ -1,5 +1,8 @@
+# IDE datas
 .idea/
+.pytest_cache/
+# Videos
 *.mp4
 *.avi
-.pytest_cache/
-outputs/
+# output
+[Oo]utputs*/
