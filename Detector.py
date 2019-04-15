@@ -166,8 +166,8 @@ class PlotUtil:
 
 class Detector:
     def __init__(self):
-        self.FirstFramePosition = None
-        self.LastFramePosition = None
+        self.firstFramePosition = None
+        self.lastFramePosition = None
         self.originalFrames = None
 
     def LinesEquals(self, lines1, lines2, comparedLinesCount):
@@ -192,10 +192,16 @@ class Detector:
             pass
         return sameCount / (sameCount + diffCount) > 0.9  # 不同到一定程度再报警
 
-    def EdgesLinesEquals(self, edges, compareLineCount):
-        for i in range(len(edges) - 1):
-            for j in range(i + 1, len(edges), 2):
-                if self.LinesEquals(edges[i], edges[j], compareLineCount):
+    def EdgesLinesEquals(self, linesList, compareLineCount):
+        '''
+        @Deprecated 比较linesList中两两lines之间有没有相同的line（只比较他俩的前compareLineCount个）
+        :param linesList: 存Lines的List
+        :param compareLineCount: 比较前几个lines
+        :return:
+        '''
+        for i in range(len(linesList) - 1):
+            for j in range(i + 1, len(linesList), 2):
+                if self.LinesEquals(linesList[i], linesList[j], compareLineCount):
                     return True
         return False
 
@@ -215,8 +221,8 @@ class Detector:
             outputVideo = FileUtil.OpenOutputVideo(outputEdgesFilename, videoInput)
         staticEdges = None  # 储存固定的Edges
         videoInput.set(cv2.CAP_PROP_POS_FRAMES, int(frame_count * startFrameRate))  # 指定读取的开始位置
-        self.FirstFramePosition = int(frame_count * startFrameRate)  # 记录第一帧的位置
-        self.LastFramePosition = int(frame_count * endFrameRate)  # 记录最后一帧的位置
+        self.firstFramePosition = int(frame_count * startFrameRate)  # 记录第一帧的位置
+        self.lastFramePosition = int(frame_count * endFrameRate)  # 记录最后一帧的位置
         if endFrameRate != 1:  # 如果提前结束，则对总帧数进行修改
             frame_count = int(frame_count * (endFrameRate - startFrameRate))
         while videoInput.isOpened() and frame_count >= 0:  # 循环读取
@@ -293,8 +299,8 @@ class Detector:
                     error = True
 
             # 获得检测线条的视频片段每一帧
-            videoInput.set(cv2.CAP_PROP_POS_FRAMES, self.FirstFramePosition)
-            for i in range(self.FirstFramePosition, self.LastFramePosition):
+            videoInput.set(cv2.CAP_PROP_POS_FRAMES, self.firstFramePosition)
+            for i in range(self.firstFramePosition, self.lastFramePosition):
                 if videoInput.isOpened() is False:
                     break
                 ret, frame = videoInput.read()
@@ -362,4 +368,3 @@ class Detector:
 
 if __name__ == '__main__':
     Detector().StartUsingVideoStream()
-    
