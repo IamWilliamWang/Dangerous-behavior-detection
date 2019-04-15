@@ -82,6 +82,10 @@ class FileUtil:
 
 
 class Transformer:
+    '''
+    图像转换器，负责图像的读取，变灰度，边缘检测和线段识别。
+    《请遵守以下命名规范：前缀image、img代表彩色图。前缀为gray代表灰度图。前缀为edges代表含有edge的黑白图。前缀为lines代表edges中各个线段的结构体。前缀为static代表之后的比较要以该变量为基准进行比较。》
+    '''
     def Imread(filename_unicode):
         '''
         读取含有unicode文件名的图片
@@ -89,13 +93,13 @@ class Transformer:
         '''
         return cv2.imdecode(np.fromfile(filename_unicode, dtype=np.uint8), -1)
 
-    def BGR2Gray(BGR):
+    def BGR2Gray(image):
         '''
         将读取的BGR转换为单通道灰度图
-        :param BGR: BGR图片
+        :param image: BGR图片
         :return: 灰度图
         '''
-        return cv2.cvtColor(BGR, cv2.COLOR_BGR2GRAY)
+        return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     def Gray2Edges(grayFrame):
         '''
@@ -107,34 +111,38 @@ class Transformer:
         edges = cv2.Canny(grayFrame, 50, 150, apertureSize=3)
         return edges
 
-    def GetEdgesFromImage(BGRimage):
+    def GetEdgesFromImage(imageBGR):
         '''
         将彩色图转变为带有所有edges信息的黑白线条图
+        :param imageBGR: 彩色图
         :return:
         '''
-        return Transformer.Gray2Edges(Transformer.BGR2Gray(BGRimage))
+        return Transformer.Gray2Edges(Transformer.BGR2Gray(imageBGR))
 
-    def GetLinesFromGrayEdges(grayImg, threshold=200):
+    def GetLinesFromEdges(edgesFrame, threshold=200):
         '''
         单通道灰度图中识别内部所有线段并返回
-        :param grayImg: 灰度图
+        :param edgesFrame: edges图
         :param threshold: 阈值限定，线段越明显阈值越大。小于该阈值的线段将被剔除
         :return:
         '''
-        return cv2.HoughLines(grayImg, 1, np.pi / 180, threshold)
+        return cv2.HoughLines(edgesFrame, 1, np.pi / 180, threshold)
 
 
 class PlotUtil:
-    def WriteLinesOnImage(img, lines, lineCount=1):
+    '''
+    用于显示图片的帮助类。可以在彩图中画霍夫线
+    '''
+    def PaintLinesOnImage(img, houghLines, paintLineCount=1):
         '''
-        在图img中划lineCount条线，线段的优先级由长到短
+        在彩色图中划指定条霍夫线，线段的优先级由长到短
         :param img: BGR图片
-        :param lines: HoughLines返回的变量
-        :param lineCount: 要画线的个数
+        :param houghLines: 霍夫线，即HoughLines函数返回的变量
+        :param paintLineCount: 要画线的个数
         :return:
         '''
-        for i in range(lineCount):
-            for rho, theta in lines[i]:
+        for i in range(paintLineCount):
+            for rho, theta in houghLines[i]:
                 a = np.cos(theta)
                 b = np.sin(theta)
                 x0 = a * rho
@@ -146,39 +154,26 @@ class PlotUtil:
                 cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
 
     def PutText(img, text):
+        '''
+        在彩图img上使用默认字体写字
+        :param text: 要写上去的字
+        :return:
+        '''
         cv2.putText(img, text, (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 2, cv2.LINE_AA)
 
 
-def Otsu_canny(image, lowrate=0.1):
+def LinesEquals(lines1, lines2, comparedLinesCount):
     '''
-    @Deprecated 自动选择参数，调用canny算子。
-    :param image:
-    :param lowrate:
-    :return:
-    '''
-    if len(image.shape) > 2:
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    # Otsu's thresholding
-    ret, _ = cv2.threshold(image, thresh=0, maxval=255, type=(cv2.THRESH_BINARY + cv2.THRESH_OTSU))
-    edged = cv2.Canny(image, threshold1=(ret * lowrate), threshold2=ret)
-
-    # return the edged image
-    return edged
-
-
-def LinesEquals(lines1, lines2, compareLineCount):
-    '''
-    HoughLines返回的lines判断是否相等
+    HoughLines函数返回的lines判断是否相等
     :param lines1: 第一个lines
     :param lines2: 第二个lines
-    :param compareLineCount: 比较前几条line
+    :param comparedLinesCount: 比较前几条line
     :return: 是否二者相等
     '''
     sameCount = 0
     diffCount = 0
     try:
-        for i in range(compareLineCount):
+        for i in range(comparedLinesCount):
             for rho1, theta1 in lines1[i]:
                 for rho2, theta2 in lines2[i]:
                     if rho1 != rho2 or theta1 != theta2:
@@ -189,18 +184,20 @@ def LinesEquals(lines1, lines2, compareLineCount):
         pass
     return sameCount / (sameCount + diffCount) > 0.9  # 不同到一定程度再报警
 
+
 def EdgesLinesEquals(edges, compareLineCount):
-    for i in range(len(edges)-1):
-        for j in range(i+1, len(edges),2):
-            if LinesEquals(edges[i],edges[j],compareLineCount):
+    for i in range(len(edges) - 1):
+        for j in range(i + 1, len(edges), 2):
+            if LinesEquals(edges[i], edges[j], compareLineCount):
                 return True
     return False
+
 
 FirstFramePosition = None
 LastFramePosition = None
 
 
-def GetStaticThings_fromVideo(videoFilename, startFrameRate=0., endFrameRate=1., outputEdgesFilename=None):
+def GetStaticEdges_fromVideo(videoFilename, startFrameRate=0., endFrameRate=1., outputEdgesFilename=None):
     '''
     从视频文件中提取不动物体的帧
     :param videoFilename: 文件名
@@ -210,84 +207,79 @@ def GetStaticThings_fromVideo(videoFilename, startFrameRate=0., endFrameRate=1.,
     '''
     # 打开输入输出视频文件
     videoInput = FileUtil.OpenInputVideo(videoFilename)
-    frame_count = videoInput.get(cv2.CAP_PROP_FRAME_COUNT)
-    outputVideo = None
+    frame_count = videoInput.get(cv2.CAP_PROP_FRAME_COUNT)  # 获取视频总共的帧数
+    outputVideo = None  # 声明输出文件
     if outputEdgesFilename is not None:
         outputVideo = FileUtil.OpenOutputVideo(outputEdgesFilename, videoInput)
-    staticEdges = None
+    staticEdges = None  # 储存固定的Edges
     videoInput.set(cv2.CAP_PROP_POS_FRAMES, int(frame_count * startFrameRate))  # 指定读取的开始位置
     global FirstFramePosition  # 记录第一帧的位置
-    global LastFramePosition
+    global LastFramePosition  # 记录最后一帧的位置
     FirstFramePosition = int(frame_count * startFrameRate)
     LastFramePosition = int(frame_count * endFrameRate)
-    if endFrameRate != 1:
+    if endFrameRate != 1:  # 如果提前结束，则对总帧数进行修改
         frame_count = int(frame_count * (endFrameRate - startFrameRate))
-    while videoInput.isOpened() and frame_count >= 0:
+    while videoInput.isOpened() and frame_count >= 0:  # 循环读取
         ret, frame = videoInput.read()
         if ret is False:
             break
-        edgeFrame = Transformer.GetEdgesFromImage(frame)  # 边缘识别
+        edges = Transformer.GetEdgesFromImage(frame)  # 对彩色帧进行边缘识别
         if staticEdges is None:
-            staticEdges = edgeFrame  # 初始化staticBW
+            staticEdges = edges  # 初始化staticEdges
         else:
-            staticEdges &= edgeFrame  # 做与运算，不同点会被去掉
+            staticEdges &= edges  # 做与运算，不同点会被去掉
         if outputEdgesFilename is not None:
-            outputVideo.write(edgeFrame)  # 写入边缘识别结果
+            outputVideo.write(edges)  # 写入边缘识别结果
         frame_count -= 1
-        # cv2.imshow('frame', edgeFrame)
-        # if cv2.waitKey(2) & 0xFF == ord('q'):
-        #   break
-
         FileUtil.CloseVideos(videoInput, outputVideo)
     return staticEdges
 
 
-def GetStaticEdges_fromSteam(inputStream, outputEdgesFilename=None):
+def GetStaticEdges_fromSteam(inputStream, frame_count=20, outputEdgesFilename=None):
     '''
     从输入流中提取不动物体的Edges帧
     :param inputStream: 输入文件流
-    :param startFrameRate 开始读取帧处于视频的比例，必须取0-1之间
+    :param frame_count 要读取的帧数
     :param outputEdgesFilename （测试用）EdgesFrame全部输出到视频为该名的文件中
     :return: 不动物体的Edges帧
     '''
-    # 打开输入输出视频文件
-    videoInput = inputStream
     outputVideo = None
     if outputEdgesFilename is not None:
-        outputVideo = FileUtil.OpenOutputVideo(outputEdgesFilename, videoInput)
+        outputVideo = FileUtil.OpenOutputVideo(outputEdgesFilename, inputStream)
     staticEdges = None
-    frame_count = 20  # 截取20帧
-    while videoInput.isOpened() and frame_count >= 0:
-        ret, frame = videoInput.read()
+    while inputStream.isOpened() and frame_count >= 0:
+        ret, frame = inputStream.read()
         if ret is False:
             break
-        edgeFrame = Transformer.GetEdgesFromImage(frame)  # 边缘识别
+        edges = Transformer.GetEdgesFromImage(frame)  # 边缘识别
         if staticEdges is None:
-            staticEdges = edgeFrame  # 初始化staticBW
+            staticEdges = edges  # 初始化staticBW
         else:
-            staticEdges &= edgeFrame  # 做与运算，不同点会被去掉
+            staticEdges &= edges  # 做与运算，不同点会被去掉
         if outputEdgesFilename is not None:
-            outputVideo.write(edgeFrame)  # 写入边缘识别结果
+            outputVideo.write(edges)  # 写入边缘识别结果
         frame_count -= 1
     return staticEdges
 
 
-def main_FileStream():
-    videoFilename = '开关柜3.mp4'
+def main_FileStream(videoFilename = '开关柜3.mp4',compareLineCount = 3,videoClipCount = 26): # 2.mp4用10、3.mp4用26
+    '''
+    针对视频文件进行的开关柜检测主函数
+    :param videoFilename: 视频文件名
+    :param compareLineCount: 需要比较几条线是一样的
+    :param videoClipCount: 视频要分成多少段
+    :return:
+    '''
     staticLines = None  # 储存基准帧
-    # 初始化处理参数
-    compareLineCount = 3  # 比较几条线
-    videoClipCount = 26  # 10、26
     # 开始生成静态基准并进行检测
     for segmentIndex in range(0, videoClipCount):
-        segmentRate = 1 / videoClipCount
-        videoInput = cv2.VideoCapture(videoFilename)
-        videoFps = int(videoInput.get(cv2.CAP_PROP_FPS))
-        staticThings = GetStaticThings_fromVideo(videoFilename, startFrameRate=segmentRate * segmentIndex,
-                                                 endFrameRate=segmentRate * (segmentIndex + 1),
-                                                 outputEdgesFilename=None)  # 获得不动的物体
+        segmentRate = 1 / videoClipCount  # 一小段是百分之多少
+        videoInput = cv2.VideoCapture(videoFilename)  # 打开视频文件
+        videoFps = int(videoInput.get(cv2.CAP_PROP_FPS))  # 读取Fps，取整
+        staticThings = GetStaticEdges_fromVideo(videoFilename, startFrameRate=segmentRate * segmentIndex,
+                                                endFrameRate=segmentRate * (segmentIndex + 1))  # 获得不动的物体
         error = False
-        lines = Transformer.GetLinesFromGrayEdges(staticThings, threshold=50)
+        lines = Transformer.GetLinesFromEdges(staticThings, threshold=50)
         if staticLines is None:
             staticLines = lines  # 以第一段视频检测出的线为基准（因为第一段视频没有人）
         else:
@@ -321,22 +313,24 @@ def main_VideoStream(source='rtsp://admin:1234abcd@192.168.1.64'):
     # 获得静态Edges的Lines信息
     inputStream = cv2.VideoCapture(source)
     staticEdges = GetStaticEdges_fromSteam(inputStream)
-    staticLines = Transformer.GetLinesFromGrayEdges(staticEdges)
+    staticLines = Transformer.GetLinesFromEdges(staticEdges)
     # 初始化处理参数
-    compareLineCount = 2
+    compareLineCount = 3
     errorTimes = 0
     showWarning = False
-    containedLines = []
+    nowStaticBW = None
+    restFrames = 10
     # 启动检测
     while inputStream.isOpened():
-        # Capture frame-by-frame  
+        # Capture frame-by-frame
         ret, frame = inputStream.read()
         if ret is False:
             break
-        if len(containedLines) < 5:
-            lines = Transformer.GetLinesFromGrayEdges(Transformer.GetEdgesFromImage(frame), threshold=50)
-            containedLines += [lines]
+        if restFrames > 0:
+            if nowStaticBW is None:
+                pass
             continue
+        lines = Transformer.GetLinesFromEdges(Transformer.GetEdgesFromImage(frame), threshold=50)
         if EdgesLinesEquals(containedLines, compareLineCount):
             print('未检测到异常。')
             errorTimes -= 1
@@ -346,7 +340,7 @@ def main_VideoStream(source='rtsp://admin:1234abcd@192.168.1.64'):
         # 清理保存的容器
         containedLines = []
         # 向这帧图像画线
-        PlotUtil.WriteLinesOnImage(frame, lines, compareLineCount)
+        PlotUtil.PaintLinesOnImage(frame, lines, compareLineCount)
         # Display the resulting frame  
         if errorTimes > 1:
             showWarning = True
@@ -358,9 +352,9 @@ def main_VideoStream(source='rtsp://admin:1234abcd@192.168.1.64'):
         if cv2.waitKey(1) is 27:  # Esc按下
             break
     # When everything done, release the capture  
-    inputStream.release()
     cv2.destroyAllWindows()
+    inputStream.release()
 
 
 if __name__ == '__main__':
-    main_VideoStream()
+    main_FileStream('开关柜3.mp4')
