@@ -177,15 +177,24 @@ def LinesEquals(lines1, lines2, compareLineCount):
     '''
     sameCount = 0
     diffCount = 0
-    for i in range(compareLineCount):
-        for rho1, theta1 in lines1[i]:
-            for rho2, theta2 in lines2[i]:
-                if rho1 != rho2 or theta1 != theta2:
-                    diffCount += 1
-                else:
-                    sameCount += 1
+    try:
+        for i in range(compareLineCount):
+            for rho1, theta1 in lines1[i]:
+                for rho2, theta2 in lines2[i]:
+                    if rho1 != rho2 or theta1 != theta2:
+                        diffCount += 1
+                    else:
+                        sameCount += 1
+    except IndexError:  # 阈值过高的话会导致找不到那么多条line
+        pass
     return sameCount / (sameCount + diffCount) > 0.9  # 不同到一定程度再报警
 
+def EdgesLinesEquals(edges, compareLineCount):
+    for i in range(len(edges)-1):
+        for j in range(i+1, len(edges),2):
+            if LinesEquals(edges[i],edges[j],compareLineCount):
+                return True
+    return False
 
 FirstFramePosition = None
 LastFramePosition = None
@@ -315,24 +324,36 @@ def main_VideoStream(source='rtsp://admin:1234abcd@192.168.1.64'):
     staticLines = Transformer.GetLinesFromGrayEdges(staticEdges)
     # 初始化处理参数
     compareLineCount = 2
+    errorTimes = 0
+    showWarning = False
+    containedLines = []
     # 启动检测
     while inputStream.isOpened():
         # Capture frame-by-frame  
         ret, frame = inputStream.read()
         if ret is False:
             break
-        error = False
-        lines = Transformer.GetLinesFromGrayEdges(Transformer.GetEdgesFromImage(frame), threshold=50)
-        if LinesEquals(lines, staticLines, compareLineCount):
+        if len(containedLines) < 5:
+            lines = Transformer.GetLinesFromGrayEdges(Transformer.GetEdgesFromImage(frame), threshold=50)
+            containedLines += [lines]
+            continue
+        if EdgesLinesEquals(containedLines, compareLineCount):
             print('未检测到异常。')
+            errorTimes -= 1
         else:
             print('检测到异常！！')
-            error = True
+            errorTimes += 1
+        # 清理保存的容器
+        containedLines = []
         # 向这帧图像画线
         PlotUtil.WriteLinesOnImage(frame, lines, compareLineCount)
         # Display the resulting frame  
-        if error:
+        if errorTimes > 1:
+            showWarning = True
+        if showWarning:
             PlotUtil.PutText(frame, 'Warning')
+        if errorTimes <= 1:
+            showWarning = False
         cv2.imshow('result', frame)
         if cv2.waitKey(1) is 27:  # Esc按下
             break
