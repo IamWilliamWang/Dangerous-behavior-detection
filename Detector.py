@@ -343,6 +343,9 @@ class Detector:
         staticLines = Transformer.GetLinesFromEdges(staticEdges)
         # 初始化处理参数
         showWarning = False  # 显示警告提示
+        showWarningTimes = 0
+        WARNING_MAX_FRAMES = 40  # warningTimes的最大值
+        WARNING_TRIGGER = 3  # 触发警报阈值。warningTimes超过几次触发警报
         # 启动检测
         while inputStream.isOpened():
             # Capture frame-by-frame
@@ -351,12 +354,20 @@ class Detector:
             if lines is None:
                 break
             if self.LinesEquals(staticLines, lines, compareLineCount):
+                if showWarningTimes > 0:  # 底线
+                    showWarningTimes -= 1  # 没有异常时计数器减一，直到真正没有异常时会减到0
                 print('未检测到异常。')
             else:
+                if showWarningTimes <= WARNING_MAX_FRAMES:  # 上线
+                    showWarningTimes += 1  # 每次异常都将计数器加一，上限40帧
                 print('检测到异常！！')
             for frame in self.originalFrames:
                 PlotUtil.PaintLinesOnImage(frame, lines, compareLineCount)
-                if self.LinesEquals(lines, staticLines, compareLineCount) is False:
+                if showWarningTimes > WARNING_TRIGGER:  # 连续报错多少次才会启动警报显示
+                    showWarning = True
+                elif showWarningTimes <= 0:  # 连续正常很多次这个数字会变成0，取消警报
+                    showWarning = False
+                if showWarning:
                     PlotUtil.PutText(frame, 'Warning')
                 cv2.imshow('Result', frame)
                 if cv2.waitKey(1) == 27:
