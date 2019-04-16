@@ -169,6 +169,7 @@ class Detector:
         self.firstFramePosition = None
         self.lastFramePosition = None
         self.originalFrames = None
+        self.showWarningMutex = 0
 
     def LinesEquals(self, lines1, lines2, comparedLinesCount):
         '''
@@ -335,6 +336,29 @@ class Detector:
             return None
         return frames
 
+    def IsWarningStatusChanged(self, exceptionOccurred, consecutiveOccurrencesNumber=3):
+        '''
+        显示warning状态是否需要改变，True为需要显示Warning。False为需要关闭Warning。None为保持不变
+        :param exceptionOccurred: 是否发生异常
+        :param consecutiveOccurrencesNumber: 连续几次同样时间发生后给予改变当前警报状态的指示
+        :return:
+        '''
+        if exceptionOccurred:  # 如果发生异常
+            if self.showWarningMutex < 0:  # 清除信号量向正方向
+                self.showWarningMutex = 0
+            else:  # 在正方向，则增添信号量
+                self.showWarningMutex += 1
+            if self.showWarningMutex > (consecutiveOccurrencesNumber-1):
+                return True  # 连续3次就返回显示warning
+        else:
+            if self.showWarningMutex > 0:
+                self.showWarningMutex = 0
+            else:
+                self.showWarningMutex -= 1
+            if self.showWarningMutex < -(consecutiveOccurrencesNumber-1):
+                return False  # 连续3次就返回撤销warning
+        return None
+
     def StartUsingVideoStream(self, source='rtsp://admin:1234abcd@192.168.1.64', compareLineCount=3):
         # 初始化输入流
         # 获得静态Edges的Lines信息
@@ -343,9 +367,6 @@ class Detector:
         staticLines = Transformer.GetLinesFromEdges(staticEdges)
         # 初始化处理参数
         showWarning = False  # 显示警告提示
-        showWarningTimes = 0
-        WARNING_MAX_FRAMES = 40  # warningTimes的最大值
-        WARNING_TRIGGER = 2  # 触发警报阈值。warningTimes超过几次触发警报
         # 启动检测
         while inputStream.isOpened():
             # Capture frame-by-frame
@@ -354,19 +375,20 @@ class Detector:
             if lines is None:
                 break
             if self.LinesEquals(staticLines, lines, compareLineCount):
-                if showWarningTimes > 0:  # 底线
-                    showWarningTimes -= 2  # 没有异常时计数器减2，直到真正没有异常时会减到0
-                print('未检测到异常。', showWarningTimes)
+                exceptionOccurred = False  # 当前帧下没有发生异常
+                print('未检测到异常。', self.showWarningMutex)
             else:
-                if showWarningTimes <= WARNING_MAX_FRAMES:  # 上线
-                    showWarningTimes += 1  # 每次异常都将计数器加一，上限40帧
-                print('检测到异常！！', showWarningTimes)
+                exceptionOccurred = True
+                print('检测到异常！！', self.showWarningMutex)
+            changeShowWarningStatus = self.IsWarningStatusChanged(exceptionOccurred)  # 是否改变报警状态
+            if changeShowWarningStatus is None:
+                pass
+            elif changeShowWarningStatus is True:
+                showWarning = True
+            else:
+                showWarning = False
             for frame in self.originalFrames:
                 PlotUtil.PaintLinesOnImage(frame, lines, compareLineCount)
-                if showWarningTimes > WARNING_TRIGGER:  # 连续报错多少次才会启动警报显示
-                    showWarning = True
-                elif showWarningTimes <= 0:  # 连续正常很多次这个数字会变成0，取消警报
-                    showWarning = False
                 if showWarning:
                     PlotUtil.PutText(frame, 'Warning')
                 cv2.imshow('Result', frame)
@@ -378,4 +400,4 @@ class Detector:
 
 
 if __name__ == '__main__':
-    Detector().StartUsingVideoStream('开关柜2.mp4')
+    Detector().StartUsingVideoStream()
