@@ -345,7 +345,7 @@ class Detector:
         showWarning = False  # 显示警告提示
         showWarningTimes = 0
         WARNING_MAX_FRAMES = 40  # warningTimes的最大值
-        WARNING_TRIGGER = 3  # 触发警报阈值。warningTimes超过几次触发警报
+        WARNING_TRIGGER = 2  # 触发警报阈值。warningTimes超过几次触发警报
         # 启动检测
         while inputStream.isOpened():
             # Capture frame-by-frame
@@ -355,12 +355,12 @@ class Detector:
                 break
             if self.LinesEquals(staticLines, lines, compareLineCount):
                 if showWarningTimes > 0:  # 底线
-                    showWarningTimes -= 1  # 没有异常时计数器减一，直到真正没有异常时会减到0
-                print('未检测到异常。')
+                    showWarningTimes -= 2  # 没有异常时计数器减2，直到真正没有异常时会减到0
+                print('未检测到异常。', showWarningTimes)
             else:
                 if showWarningTimes <= WARNING_MAX_FRAMES:  # 上线
                     showWarningTimes += 1  # 每次异常都将计数器加一，上限40帧
-                print('检测到异常！！')
+                print('检测到异常！！', showWarningTimes)
             for frame in self.originalFrames:
                 PlotUtil.PaintLinesOnImage(frame, lines, compareLineCount)
                 if showWarningTimes > WARNING_TRIGGER:  # 连续报错多少次才会启动警报显示
@@ -378,4 +378,4 @@ class Detector:
 
 
 if __name__ == '__main__':
-    Detector().StartUsingVideoStream()
+    Detector().StartUsingVideoStream('开关柜2.mp4')
