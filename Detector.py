@@ -87,6 +87,7 @@ class Transformer:
     《请遵守以下命名规范：前缀image、img代表彩色图。前缀为gray代表灰度图。前缀为edges代表含有edge的黑白图。前缀为lines代表edges中各个线段的结构体。前缀为static代表之后的比较要以该变量为基准进行比较。可以有双前缀》
     '''
 
+    @staticmethod
     def Imread(filename_unicode):
         '''
         读取含有unicode文件名的图片
@@ -94,6 +95,7 @@ class Transformer:
         '''
         return cv2.imdecode(np.fromfile(filename_unicode, dtype=np.uint8), -1)
 
+    @staticmethod
     def GetGrayFromBGRImage(image):
         '''
         将读取的BGR转换为单通道灰度图
@@ -102,6 +104,7 @@ class Transformer:
         '''
         return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
+    @staticmethod
     def GetEdgesFromGray(grayFrame):
         '''
         将灰度图调用canny检测出edges，返回灰度edges图
@@ -112,6 +115,7 @@ class Transformer:
         edges = cv2.Canny(grayFrame, 50, 150, apertureSize=3)
         return edges
 
+    @staticmethod
     def GetEdgesFromImage(imageBGR):
         '''
         将彩色图转变为带有所有edges信息的黑白线条图
@@ -120,6 +124,7 @@ class Transformer:
         '''
         return Transformer.GetEdgesFromGray(Transformer.GetGrayFromBGRImage(imageBGR))
 
+    @staticmethod
     def GetLinesFromEdges(edgesFrame, threshold=200):
         '''
         单通道灰度图中识别内部所有线段并返回
@@ -135,6 +140,7 @@ class PlotUtil:
     用于显示图片的帮助类。可以在彩图中画霍夫线
     '''
 
+    @staticmethod
     def PaintLinesOnImage(img, houghLines, paintLineCount=1):
         '''
         在彩色图中划指定条霍夫线，线段的优先级由长到短
@@ -155,6 +161,7 @@ class PlotUtil:
                 y2 = int(y0 - 1000 * a)
                 cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
 
+    @staticmethod
     def PutText(img, text):
         '''
         在彩图img上使用默认字体写字
@@ -166,10 +173,10 @@ class PlotUtil:
 
 class Detector:
     def __init__(self):
-        self.firstFramePosition = None
-        self.lastFramePosition = None
-        self.originalFrames = None
-        self.showWarningMutex = 0
+        self.firstFramePosition = None  # 处理视频文件时记录的当前片段在视频中的开始帧号
+        self.lastFramePosition = None  # 处理视频文件时记录的当前片段在视频中的结束帧号
+        self.originalFrames = None  # 处理视频流时记录当前片段的原始录像
+        self.showWarningMutex = 0  # 用于切换警报状态的信号量
 
     def LinesEquals(self, lines1, lines2, comparedLinesCount):
         '''
@@ -269,7 +276,8 @@ class Detector:
             frame_count -= 1
         return staticEdges
 
-    def StartUsingFileStream(self, videoFilename='开关柜3.mp4', compareLineCount=3, videoClipCount=26):  # 2.mp4用10、3.mp4用26
+    def StartUsingFileStream(self, videoFilename='开关柜3.mp4', compareLineCount=3,
+                             videoClipCount=26):  # 2.mp4用10、3.mp4用26
         '''
         针对视频文件进行的开关柜检测主函数
         :param videoFilename: 视频文件名
@@ -348,14 +356,14 @@ class Detector:
                 self.showWarningMutex = 0
             else:  # 在正方向，则增添信号量
                 self.showWarningMutex += 1
-            if self.showWarningMutex > (consecutiveOccurrencesNumber-1):
+            if self.showWarningMutex > (consecutiveOccurrencesNumber - 1):
                 return True  # 连续3次就返回显示warning
         else:
             if self.showWarningMutex > 0:
                 self.showWarningMutex = 0
             else:
                 self.showWarningMutex -= 1
-            if self.showWarningMutex < -(consecutiveOccurrencesNumber-1):
+            if self.showWarningMutex < -(consecutiveOccurrencesNumber - 1):
                 return False  # 连续3次就返回撤销warning
         return None
 
