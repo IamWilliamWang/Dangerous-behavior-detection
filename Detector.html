@@ -1,210 +1,1575 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html><head><title>Python: module Detector</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-</head><body bgcolor="#f0f0f8">
+<!doctype html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
-<tr bgcolor="#7799ee">
-<td valign=bottom>&nbsp;<br>
-<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>Detector</strong></big></big></font></td
-><td align=right valign=bottom
-><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:e%3A%5Cpycharmprojects%5Ccannyvideopython%5Cdetector.py">e:\pycharmprojects\cannyvideopython\detector.py</a></font></td></tr></table>
-    <p></p>
-<p>
-<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
-<tr bgcolor="#aa55cc">
-<td colspan=3 valign=bottom>&nbsp;<br>
-<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    <title>Detector API documentation</title>
+    <meta name="description" content="" />
+
+  <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
+  
+  <style type="text/css">
+  
+* {
+  box-sizing: border-box;
+}
+/*! normalize.css v1.1.1 | MIT License | git.io/normalize */
+
+/* ==========================================================================
+   HTML5 display definitions
+   ========================================================================== */
+
+/**
+ * Correct `block` display not defined in IE 6/7/8/9 and Firefox 3.
+ */
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+nav,
+section,
+summary {
+    display: block;
+}
+
+/**
+ * Correct `inline-block` display not defined in IE 6/7/8/9 and Firefox 3.
+ */
+
+audio,
+canvas,
+video {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+}
+
+/**
+ * Prevent modern browsers from displaying `audio` without controls.
+ * Remove excess height in iOS 5 devices.
+ */
+
+audio:not([controls]) {
+    display: none;
+    height: 0;
+}
+
+/**
+ * Address styling not present in IE 7/8/9, Firefox 3, and Safari 4.
+ * Known issue: no IE 6 support.
+ */
+
+[hidden] {
+    display: none;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+/**
+ * 1. Prevent system color scheme's background color being used in Firefox, IE,
+ *    and Opera.
+ * 2. Prevent system color scheme's text color being used in Firefox, IE, and
+ *    Opera.
+ * 3. Correct text resizing oddly in IE 6/7 when body `font-size` is set using
+ *    `em` units.
+ * 4. Prevent iOS text size adjust after orientation change, without disabling
+ *    user zoom.
+ */
+
+html {
+    background: #fff; /* 1 */
+    color: #000; /* 2 */
+    font-size: 100%; /* 3 */
+    -webkit-text-size-adjust: 100%; /* 4 */
+    -ms-text-size-adjust: 100%; /* 4 */
+}
+
+/**
+ * Address `font-family` inconsistency between `textarea` and other form
+ * elements.
+ */
+
+html,
+button,
+input,
+select,
+textarea {
+    font-family: sans-serif;
+}
+
+/**
+ * Address margins handled incorrectly in IE 6/7.
+ */
+
+body {
+    margin: 0;
+}
+
+/* ==========================================================================
+   Links
+   ========================================================================== */
+
+/**
+ * Address `outline` inconsistency between Chrome and other browsers.
+ */
+
+a:focus {
+    outline: thin dotted;
+}
+
+/**
+ * Improve readability when focused and also mouse hovered in all browsers.
+ */
+
+a:active,
+a:hover {
+    outline: 0;
+}
+
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+
+/**
+ * Address font sizes and margins set differently in IE 6/7.
+ * Address font sizes within `section` and `article` in Firefox 4+, Safari 5,
+ * and Chrome.
+ */
+
+h1 {
+    font-size: 2em;
+    margin: 0.67em 0;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 0.83em 0;
+}
+
+h3 {
+    font-size: 1.17em;
+    margin: 1em 0;
+}
+
+h4 {
+    font-size: 1em;
+    margin: 1.33em 0;
+}
+
+h5 {
+    font-size: 0.83em;
+    margin: 1.67em 0;
+}
+
+h6 {
+    font-size: 0.67em;
+    margin: 2.33em 0;
+}
+
+/**
+ * Address styling not present in IE 7/8/9, Safari 5, and Chrome.
+ */
+
+abbr[title] {
+    border-bottom: 1px dotted;
+}
+
+/**
+ * Address style set to `bolder` in Firefox 3+, Safari 4/5, and Chrome.
+ */
+
+b,
+strong {
+    font-weight: bold;
+}
+
+blockquote {
+    margin: 1em 40px;
+}
+
+/**
+ * Address styling not present in Safari 5 and Chrome.
+ */
+
+dfn {
+    font-style: italic;
+}
+
+/**
+ * Address differences between Firefox and other browsers.
+ * Known issue: no IE 6/7 normalization.
+ */
+
+hr {
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+    height: 0;
+}
+
+/**
+ * Address styling not present in IE 6/7/8/9.
+ */
+
+mark {
+    background: #ff0;
+    color: #000;
+}
+
+/**
+ * Address margins set differently in IE 6/7.
+ */
+
+p,
+pre {
+    margin: 1em 0;
+}
+
+/**
+ * Correct font family set oddly in IE 6, Safari 4/5, and Chrome.
+ */
+
+code,
+kbd,
+pre,
+samp {
+    font-family: monospace, serif;
+    _font-family: 'courier new', monospace;
+    font-size: 1em;
+}
+
+/**
+ * Improve readability of pre-formatted text in all browsers.
+ */
+
+pre {
+    white-space: pre;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/**
+ * Address CSS quotes not supported in IE 6/7.
+ */
+
+q {
+    quotes: none;
+}
+
+/**
+ * Address `quotes` property not supported in Safari 4.
+ */
+
+q:before,
+q:after {
+    content: '';
+    content: none;
+}
+
+/**
+ * Address inconsistent and variable font size in all browsers.
+ */
+
+small {
+    font-size: 80%;
+}
+
+/**
+ * Prevent `sub` and `sup` affecting `line-height` in all browsers.
+ */
+
+sub,
+sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+}
+
+sup {
+    top: -0.5em;
+}
+
+sub {
+    bottom: -0.25em;
+}
+
+/* ==========================================================================
+   Lists
+   ========================================================================== */
+
+/**
+ * Address margins set differently in IE 6/7.
+ */
+
+dl,
+menu,
+ol,
+ul {
+    margin: 1em 0;
+}
+
+dd {
+    margin: 0 0 0 40px;
+}
+
+/**
+ * Address paddings set differently in IE 6/7.
+ */
+
+menu,
+ol,
+ul {
+    padding: 0 0 0 40px;
+}
+
+/**
+ * Correct list images handled incorrectly in IE 7.
+ */
+
+nav ul,
+nav ol {
+    list-style: none;
+    list-style-image: none;
+}
+
+/* ==========================================================================
+   Embedded content
+   ========================================================================== */
+
+/**
+ * 1. Remove border when inside `a` element in IE 6/7/8/9 and Firefox 3.
+ * 2. Improve image quality when scaled in IE 7.
+ */
+
+img {
+    border: 0; /* 1 */
+    -ms-interpolation-mode: bicubic; /* 2 */
+}
+
+/**
+ * Correct overflow displayed oddly in IE 9.
+ */
+
+svg:not(:root) {
+    overflow: hidden;
+}
+
+/* ==========================================================================
+   Figures
+   ========================================================================== */
+
+/**
+ * Address margin not present in IE 6/7/8/9, Safari 5, and Opera 11.
+ */
+
+figure {
+    margin: 0;
+}
+
+/* ==========================================================================
+   Forms
+   ========================================================================== */
+
+/**
+ * Correct margin displayed oddly in IE 6/7.
+ */
+
+form {
+    margin: 0;
+}
+
+/**
+ * Define consistent border, margin, and padding.
+ */
+
+fieldset {
+    border: 1px solid #c0c0c0;
+    margin: 0 2px;
+    padding: 0.35em 0.625em 0.75em;
+}
+
+/**
+ * 1. Correct color not being inherited in IE 6/7/8/9.
+ * 2. Correct text not wrapping in Firefox 3.
+ * 3. Correct alignment displayed oddly in IE 6/7.
+ */
+
+legend {
+    border: 0; /* 1 */
+    padding: 0;
+    white-space: normal; /* 2 */
+    *margin-left: -7px; /* 3 */
+}
+
+/**
+ * 1. Correct font size not being inherited in all browsers.
+ * 2. Address margins set differently in IE 6/7, Firefox 3+, Safari 5,
+ *    and Chrome.
+ * 3. Improve appearance and consistency in all browsers.
+ */
+
+button,
+input,
+select,
+textarea {
+    font-size: 100%; /* 1 */
+    margin: 0; /* 2 */
+    vertical-align: baseline; /* 3 */
+    *vertical-align: middle; /* 3 */
+}
+
+/**
+ * Address Firefox 3+ setting `line-height` on `input` using `!important` in
+ * the UA stylesheet.
+ */
+
+button,
+input {
+    line-height: normal;
+}
+
+/**
+ * Address inconsistent `text-transform` inheritance for `button` and `select`.
+ * All other form control elements do not inherit `text-transform` values.
+ * Correct `button` style inheritance in Chrome, Safari 5+, and IE 6+.
+ * Correct `select` style inheritance in Firefox 4+ and Opera.
+ */
+
+button,
+select {
+    text-transform: none;
+}
+
+/**
+ * 1. Avoid the WebKit bug in Android 4.0.* where (2) destroys native `audio`
+ *    and `video` controls.
+ * 2. Correct inability to style clickable `input` types in iOS.
+ * 3. Improve usability and consistency of cursor style between image-type
+ *    `input` and others.
+ * 4. Remove inner spacing in IE 7 without affecting normal text inputs.
+ *    Known issue: inner spacing remains in IE 6.
+ */
+
+button,
+html input[type="button"], /* 1 */
+input[type="reset"],
+input[type="submit"] {
+    -webkit-appearance: button; /* 2 */
+    cursor: pointer; /* 3 */
+    *overflow: visible;  /* 4 */
+}
+
+/**
+ * Re-set default cursor for disabled elements.
+ */
+
+button[disabled],
+html input[disabled] {
+    cursor: default;
+}
+
+/**
+ * 1. Address box sizing set to content-box in IE 8/9.
+ * 2. Remove excess padding in IE 8/9.
+ * 3. Remove excess padding in IE 7.
+ *    Known issue: excess padding remains in IE 6.
+ */
+
+input[type="checkbox"],
+input[type="radio"] {
+    box-sizing: border-box; /* 1 */
+    padding: 0; /* 2 */
+    *height: 13px; /* 3 */
+    *width: 13px; /* 3 */
+}
+
+/**
+ * 1. Address `appearance` set to `searchfield` in Safari 5 and Chrome.
+ * 2. Address `box-sizing` set to `border-box` in Safari 5 and Chrome
+ *    (include `-moz` to future-proof).
+ */
+
+input[type="search"] {
+    -webkit-appearance: textfield; /* 1 */
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box; /* 2 */
+    box-sizing: content-box;
+}
+
+/**
+ * Remove inner padding and search cancel button in Safari 5 and Chrome
+ * on OS X.
+ */
+
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+    -webkit-appearance: none;
+}
+
+/**
+ * Remove inner padding and border in Firefox 3+.
+ */
+
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+/**
+ * 1. Remove default vertical scrollbar in IE 6/7/8/9.
+ * 2. Improve readability and alignment in all browsers.
+ */
+
+textarea {
+    overflow: auto; /* 1 */
+    vertical-align: top; /* 2 */
+}
+
+/* ==========================================================================
+   Tables
+   ========================================================================== */
+
+/**
+ * Remove most spacing between table cells.
+ */
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+  </style>
+
+  <style type="text/css">
+  
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+  }
+  body {
+    background: #fff;
+    font-family: "Source Sans Pro", "Helvetica Neueue", Helvetica, sans;
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 1.6em;
+  }
+  #content {
+    width: 70%;
+    max-width: 850px;
+    float: left;
+    padding: 30px 60px;
+    border-left: 1px solid #ddd;
+  }
+  #sidebar {
+    width: 25%;
+    float: left;
+    padding: 30px;
+    overflow: hidden;
+  }
+  #nav {
+    font-size: 130%;
+    margin: 0 0 15px 0;
+  }
+
+  #top {
+    display: block;
+    position: fixed;
+    bottom: 5px;
+    left: 5px;
+    font-size: .85em;
+    text-transform: uppercase;
+  }
+
+  #footer {
+    font-size: .75em;
+    padding: 5px 30px;
+    border-top: 1px solid #ddd;
+    text-align: right;
+  }
+    #footer p {
+      margin: 0 0 0 30px;
+      display: inline-block;
+    }
+
+  h1, h2, h3, h4, h5 {
+    font-weight: 300;
+  }
+  h1 {
+    font-size: 2.5em;
+    line-height: 1.1em;
+    margin: 0 0 .50em 0;
+  }
+
+  h2 {
+    font-size: 1.75em;
+    margin: 1em 0 .50em 0;
+  }
+
+  h3 {
+    margin: 25px 0 10px 0;
+  }
+
+  h4 {
+    margin: 0;
+    font-size: 105%;
+  }
+
+  a {
+    color: #058;
+    text-decoration: none;
+    transition: color .3s ease-in-out;
+  }
+
+  a:hover {
+    color: #e08524;
+    transition: color .3s ease-in-out;
+  }
+
+  pre, code, .mono, .name {
+    font-family: "Ubuntu Mono", "Cousine", "DejaVu Sans Mono", monospace;
+  }
+
+  .title .name {
+    font-weight: bold;
+  }
+  .section-title {
+    margin-top: 2em;
+  }
+  .ident {
+    color: #900;
+  }
+
+  code {
+    background: #f9f9f9;
+  } 
+
+  pre {
+    background: #fefefe;
+    border: 1px solid #ddd;
+    box-shadow: 2px 2px 0 #f3f3f3;
+    margin: 0 30px;
+    padding: 15px 30px;
+  }
+
+  .codehilite {
+    margin: 0 30px 10px 30px;
+  }
+
+    .codehilite pre {
+      margin: 0;
+    }
+    .codehilite .err { background: #ff3300; color: #fff !important; } 
+
+  table#module-list {
+    font-size: 110%;
+  }
+
+    table#module-list tr td:first-child {
+      padding-right: 10px;
+      white-space: nowrap;
+    }
+
+    table#module-list td {
+      vertical-align: top;
+      padding-bottom: 8px;
+    }
+
+      table#module-list td p {
+        margin: 0 0 7px 0;
+      }
+
+  .def {
+    display: table;
+  }
+
+    .def p {
+      display: table-cell;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .def p:first-child {
+      white-space: nowrap;
+    }
+
+    .def p:last-child {
+      width: 100%;
+    }
+
+
+  #index {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+    ul#index .class_name {
+      /* font-size: 110%; */
+      font-weight: bold;
+    }
+    #index ul {
+      margin: 0;
+    }
+
+  .item {
+    margin: 0 0 15px 0;
+  }
+
+    .item .class {
+      margin: 0 0 25px 30px;
+    }
+
+      .item .class ul.class_list {
+        margin: 0 0 20px 0;
+      }
+
+    .item .name {
+      background: #fafafa;
+      margin: 0;
+      font-weight: bold;
+      padding: 5px 10px;
+      border-radius: 3px;
+      display: inline-block;
+      min-width: 40%;
+    }
+      .item .name:hover {
+        background: #f6f6f6;
+      }
+
+    .item .empty_desc {
+      margin: 0 0 5px 0;
+      padding: 0;
+    }
+
+    .item .inheritance {
+      margin: 3px 0 0 30px;
+    }
+
+    .item .inherited {
+      color: #666;
+    }
+
+    .item .desc {
+      padding: 0 8px;
+      margin: 0;
+    }
+
+      .item .desc p {
+        margin: 0 0 10px 0;
+      }
+
+    .source_cont {
+      margin: 0;
+      padding: 0;
+    }
+
+    .source_link a {
+      background: #ffc300;
+      font-weight: 400;
+      font-size: .75em;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 1px 1px 0 #f4b700;
+      
+      padding: 3px 8px;
+      border-radius: 2px;
+      transition: background .3s ease-in-out;
+    }
+      .source_link a:hover {
+        background: #FF7200;
+        text-shadow: none;
+        transition: background .3s ease-in-out;
+      }
+
+    .source {
+      display: none;
+      max-height: 600px;
+      overflow-y: scroll;
+      margin-bottom: 15px;
+    }
+
+      .source .codehilite {
+        margin: 0;
+      }
+
+  .desc h1, .desc h2, .desc h3 {
+    font-size: 100% !important;
+  }
+  .clear {
+    clear: both;
+  }
+
+  @media all and (max-width: 950px) {
+    #sidebar {
+      width: 35%;
+    }
+    #content {
+      width: 65%;
+    }
+  }
+  @media all and (max-width: 650px) {
+    #top {
+      display: none;
+    }
+    #sidebar {
+      float: none;
+      width: auto;
+    }
+    #content {
+      float: none;
+      width: auto;
+      padding: 30px;
+    }
+
+    #index ul {
+      padding: 0;
+      margin-bottom: 15px;
+    }
+    #index ul li {
+      display: inline-block;
+      margin-right: 30px;
+    }
+    #footer {
+      text-align: left;
+    }
+    #footer p {
+      display: block;
+      margin: inherit;
+    }
+  }
+
+  /*****************************/
+
+  </style>
+
+  <style type="text/css">
+  .codehilite .hll { background-color: #ffffcc }
+.codehilite  { background: #f8f8f8; }
+.codehilite .c { color: #408080; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #FF0000 } /* Error */
+.codehilite .k { color: #008000; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666666 } /* Operator */
+.codehilite .ch { color: #408080; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #408080; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #BC7A00 } /* Comment.Preproc */
+.codehilite .cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #408080; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #408080; font-style: italic } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .gr { color: #FF0000 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888888 } /* Generic.Output */
+.codehilite .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #0044DD } /* Generic.Traceback */
+.codehilite .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #008000 } /* Keyword.Pseudo */
+.codehilite .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #B00040 } /* Keyword.Type */
+.codehilite .m { color: #666666 } /* Literal.Number */
+.codehilite .s { color: #BA2121 } /* Literal.String */
+.codehilite .na { color: #7D9029 } /* Name.Attribute */
+.codehilite .nb { color: #008000 } /* Name.Builtin */
+.codehilite .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #880000 } /* Name.Constant */
+.codehilite .nd { color: #AA22FF } /* Name.Decorator */
+.codehilite .ni { color: #999999; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+.codehilite .nf { color: #0000FF } /* Name.Function */
+.codehilite .nl { color: #A0A000 } /* Name.Label */
+.codehilite .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #19177C } /* Name.Variable */
+.codehilite .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #bbbbbb } /* Text.Whitespace */
+.codehilite .mb { color: #666666 } /* Literal.Number.Bin */
+.codehilite .mf { color: #666666 } /* Literal.Number.Float */
+.codehilite .mh { color: #666666 } /* Literal.Number.Hex */
+.codehilite .mi { color: #666666 } /* Literal.Number.Integer */
+.codehilite .mo { color: #666666 } /* Literal.Number.Oct */
+.codehilite .sa { color: #BA2121 } /* Literal.String.Affix */
+.codehilite .sb { color: #BA2121 } /* Literal.String.Backtick */
+.codehilite .sc { color: #BA2121 } /* Literal.String.Char */
+.codehilite .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #BA2121 } /* Literal.String.Double */
+.codehilite .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.codehilite .si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+.codehilite .sx { color: #008000 } /* Literal.String.Other */
+.codehilite .sr { color: #BB6688 } /* Literal.String.Regex */
+.codehilite .s1 { color: #BA2121 } /* Literal.String.Single */
+.codehilite .ss { color: #19177C } /* Literal.String.Symbol */
+.codehilite .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #0000FF } /* Name.Function.Magic */
+.codehilite .vc { color: #19177C } /* Name.Variable.Class */
+.codehilite .vg { color: #19177C } /* Name.Variable.Global */
+.codehilite .vi { color: #19177C } /* Name.Variable.Instance */
+.codehilite .vm { color: #19177C } /* Name.Variable.Magic */
+.codehilite .il { color: #666666 } /* Literal.Number.Integer.Long */
+  </style>
+
+  <style type="text/css">
+  
+/* ==========================================================================
+   EXAMPLE Media Queries for Responsive Design.
+   These examples override the primary ('mobile first') styles.
+   Modify as content requires.
+   ========================================================================== */
+
+@media only screen and (min-width: 35em) {
+    /* Style adjustments for viewports that meet the condition */
+}
+
+@media print,
+       (-o-min-device-pixel-ratio: 5/4),
+       (-webkit-min-device-pixel-ratio: 1.25),
+       (min-resolution: 120dpi) {
+    /* Style adjustments for high resolution devices */
+}
+
+/* ==========================================================================
+   Print styles.
+   Inlined to avoid required HTTP connection: h5bp.com/r
+   ========================================================================== */
+
+@media print {
+    * {
+        background: transparent !important;
+        color: #000 !important; /* Black prints faster: h5bp.com/s */
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    a,
+    a:visited {
+        text-decoration: underline;
+    }
+
+    a[href]:after {
+        content: " (" attr(href) ")";
+    }
+
+    abbr[title]:after {
+        content: " (" attr(title) ")";
+    }
+
+    /*
+     * Don't show links for images, or javascript/internal links
+     */
+
+    .ir a:after,
+    a[href^="javascript:"]:after,
+    a[href^="#"]:after {
+        content: "";
+    }
+
+    pre,
+    blockquote {
+        border: 1px solid #999;
+        page-break-inside: avoid;
+    }
+
+    thead {
+        display: table-header-group; /* h5bp.com/t */
+    }
+
+    tr,
+    img {
+        page-break-inside: avoid;
+    }
+
+    img {
+        max-width: 100% !important;
+    }
+
+    @page {
+        margin: 0.5cm;
+    }
+
+    p,
+    h2,
+    h3 {
+        orphans: 3;
+        widows: 3;
+    }
+
+    h2,
+    h3 {
+        page-break-after: avoid;
+    }
+}
+
+  </style>
+
+  <script type="text/javascript">
+  function toggle(id, $link) {
+    $node = document.getElementById(id);
+    if (!$node)
+    return;
+    if (!$node.style.display || $node.style.display == 'none') {
+    $node.style.display = 'block';
+    $link.innerHTML = 'Hide source &nequiv;';
+    } else {
+    $node.style.display = 'none';
+    $link.innerHTML = 'Show source &equiv;';
+    }
+  }
+  </script>
+</head>
+<body>
+<a href="#" id="top">Top</a>
+
+<div id="container">
     
-<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="cv2.cv2.html">cv2.cv2</a><br>
-</td><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
-</td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
-<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
-<tr bgcolor="#ee77aa">
-<td colspan=3 valign=bottom>&nbsp;<br>
-<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+  
+  <div id="sidebar">
+    <h1>Index</h1>
+    <ul id="index">
+
+
+    <li class="set"><h3><a href="#header-classes">Classes</a></h3>
+      <ul>
+        <li class="mono">
+        <span class="class_name"><a href="#Detector.Detector">Detector</a></span>
+        
+          
+  <ul>
+    <li class="mono"><a href="#Detector.Detector.__init__">__init__</a></li>
+    <li class="mono"><a href="#Detector.Detector.GetNoChangeEdges_fromSteam">GetNoChangeEdges_fromSteam</a></li>
+    <li class="mono"><a href="#Detector.Detector.GetNoChangeEdges_fromVideo">GetNoChangeEdges_fromVideo</a></li>
+    <li class="mono"><a href="#Detector.Detector.IsWarningStatusChanged">IsWarningStatusChanged</a></li>
+    <li class="mono"><a href="#Detector.Detector.LinesEquals">LinesEquals</a></li>
+    <li class="mono"><a href="#Detector.Detector.StartUsingFileStream">StartUsingFileStream</a></li>
+    <li class="mono"><a href="#Detector.Detector.StartUsingVideoStream">StartUsingVideoStream</a></li>
+  </ul>
+
+        </li>
+        <li class="mono">
+        <span class="class_name"><a href="#Detector.PlotUtil">PlotUtil</a></span>
+        
+          
+  <ul>
+    <li class="mono"><a href="#Detector.PlotUtil.PaintLinesOnImage">PaintLinesOnImage</a></li>
+    <li class="mono"><a href="#Detector.PlotUtil.PutText">PutText</a></li>
+  </ul>
+
+        </li>
+        <li class="mono">
+        <span class="class_name"><a href="#Detector.Transformer">Transformer</a></span>
+        
+          
+  <ul>
+    <li class="mono"><a href="#Detector.Transformer.GetEdgesFromGray">GetEdgesFromGray</a></li>
+    <li class="mono"><a href="#Detector.Transformer.GetEdgesFromImage">GetEdgesFromImage</a></li>
+    <li class="mono"><a href="#Detector.Transformer.GetGrayFromBGRImage">GetGrayFromBGRImage</a></li>
+    <li class="mono"><a href="#Detector.Transformer.GetLinesFromEdges">GetLinesFromEdges</a></li>
+    <li class="mono"><a href="#Detector.Transformer.Imread">Imread</a></li>
+    <li class="mono"><a href="#Detector.Transformer.IsGrayImage">IsGrayImage</a></li>
+  </ul>
+
+        </li>
+        <li class="mono">
+        <span class="class_name"><a href="#Detector.VideoUtil">VideoUtil</a></span>
+        
+          
+  <ul>
+    <li class="mono"><a href="#Detector.VideoUtil.CloseVideos">CloseVideos</a></li>
+    <li class="mono"><a href="#Detector.VideoUtil.OpenInputVideo">OpenInputVideo</a></li>
+    <li class="mono"><a href="#Detector.VideoUtil.OpenOutputVideo">OpenOutputVideo</a></li>
+    <li class="mono"><a href="#Detector.VideoUtil.OpenVideos">OpenVideos</a></li>
+    <li class="mono"><a href="#Detector.VideoUtil.ReadFrames">ReadFrames</a></li>
+  </ul>
+
+        </li>
+      </ul>
+    </li>
+
+    </ul>
+  </div>
+
+    <article id="content">
+      
+  
+
+  
+
+
+  <header id="section-intro">
+  <h1 class="title"><span class="name">Detector</span> module</h1>
+  
+  
+
+  </header>
+
+  <section id="section-items">
+
+
+    <h2 class="section-title" id="header-classes">Classes</h2>
+      
+      <div class="item">
+      <p id="Detector.Detector" class="name">class <span class="ident">Detector</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#Detector.Detector">Detector</a></li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Static methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="Detector.Detector.__init__">
+    <p>def <span class="ident">__init__</span>(</p><p>self)</p>
+    </div>
     
-<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><dl>
-<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
-</font></dt><dd>
-<dl>
-<dt><font face="helvetica, arial"><a href="Detector.html#Detector">Detector</a>
-</font></dt><dt><font face="helvetica, arial"><a href="Detector.html#PlotUtil">PlotUtil</a>
-</font></dt><dt><font face="helvetica, arial"><a href="Detector.html#Transformer">Transformer</a>
-</font></dt><dt><font face="helvetica, arial"><a href="Detector.html#VideoFileUtil">VideoFileUtil</a>
-</font></dt></dl>
-</dd>
-</dl>
- <p>
-<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
-<tr bgcolor="#ffc8d8">
-<td colspan=3 valign=bottom>&nbsp;<br>
-<font color="#000000" face="helvetica, arial"><a name="Detector">class <strong>Detector</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+
     
-<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%">Methods defined here:<br>
-<dl><dt><a name="Detector-GetNoChangeEdges_fromSteam"><strong>GetNoChangeEdges_fromSteam</strong></a>(self, inputStream, frame_count=20, outputEdgesFilename=None)</dt><dd><tt>从输入流中提取不动物体的Edges帧<br>
-:param&nbsp;inputStream:&nbsp;输入文件流<br>
-:param&nbsp;frame_count:&nbsp;要读取的帧数<br>
-:param&nbsp;outputEdgesFilename:&nbsp;EdgesFrame全部输出到视频为该名的文件中（测试用）<br>
-:return:&nbsp;不动物体的Edges帧、原本的彩色帧组</tt></dd></dl>
+  
+    <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
+  <div class="source_cont">
+</div>
 
-<dl><dt><a name="Detector-GetNoChangeEdges_fromVideo"><strong>GetNoChangeEdges_fromVideo</strong></a>(self, videoFilename, startFrameRate=0.0, endFrameRate=1.0, outputEdgesFilename=None)</dt><dd><tt>从视频文件中提取不动物体的帧<br>
-:param&nbsp;videoFilename:&nbsp;文件名<br>
-:param&nbsp;startFrameRate:&nbsp;开始读取帧处于视频的比例，必须取0-1之间<br>
-:param&nbsp;endFrameRate:&nbsp;结束读取帧处于视频的比例，必须取0-1之间<br>
-:param&nbsp;outputEdgesFilename:&nbsp;EdgesFrame全部输出到视频为该名的文件中（测试时用）<br>
-:return:&nbsp;不动物体的Edges帧</tt></dd></dl>
-
-<dl><dt><a name="Detector-IsWarningStatusChanged"><strong>IsWarningStatusChanged</strong></a>(self, exceptionOccurred, consecutiveOccurrencesNumber=3)</dt><dd><tt>显示warning状态是否需要改变，True为需要显示Warning。False为需要关闭Warning。None为保持不变<br>
-:param&nbsp;exceptionOccurred:&nbsp;是否发生异常<br>
-:param&nbsp;consecutiveOccurrencesNumber:&nbsp;连续几次同样时间发生后给予改变当前警报状态的指示<br>
-:return:</tt></dd></dl>
-
-<dl><dt><a name="Detector-LinesEquals"><strong>LinesEquals</strong></a>(self, lines1, lines2, comparedLinesCount)</dt><dd><tt>HoughLines函数返回的lines判断是否相等<br>
-:param&nbsp;lines1:&nbsp;第一个lines<br>
-:param&nbsp;lines2:&nbsp;第二个lines<br>
-:param&nbsp;comparedLinesCount:&nbsp;比较前几条line<br>
-:return:&nbsp;是否二者相等</tt></dd></dl>
-
-<dl><dt><a name="Detector-ReadFrames"><strong>ReadFrames</strong></a>(self, stream, readFramesCount)</dt><dd><tt>从输入流中读取readFramesCount个帧并返回，如果没有读取则返回None<br>
-:param&nbsp;stream:&nbsp;输入流<br>
-:param&nbsp;readFramesCount:&nbsp;要读取的帧数<br>
-:return:</tt></dd></dl>
-
-<dl><dt><a name="Detector-StartUsingFileStream"><strong>StartUsingFileStream</strong></a>(self, videoFilename='开关柜3.mp4', compareLineCount=3, videoClipCount=26)</dt><dd><tt>针对视频文件进行的开关柜检测主函数<br>
-:param&nbsp;videoFilename:&nbsp;视频文件名<br>
-:param&nbsp;compareLineCount:&nbsp;需要比较几条线是一样的<br>
-:param&nbsp;videoClipCount:&nbsp;视频要分成多少段<br>
-:return:</tt></dd></dl>
-
-<dl><dt><a name="Detector-StartUsingVideoStream"><strong>StartUsingVideoStream</strong></a>(self, source='rtsp://admin:1234abcd@192.168.1.64', compareLineCount=3)</dt><dd><tt>解析输入视频流，并在柜子出现变动时输出警告<br>
-:param&nbsp;source:&nbsp;视频源<br>
-:param&nbsp;compareLineCount:&nbsp;需要比较的主要线条个数<br>
-:return:</tt></dd></dl>
-
-<dl><dt><a name="Detector-__init__"><strong>__init__</strong></a>(self)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
-
-<hr>
-Data descriptors defined here:<br>
-<dl><dt><strong>__dict__</strong></dt>
-<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
-</dl>
-<dl><dt><strong>__weakref__</strong></dt>
-<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
-</dl>
-</td></tr></table> <p>
-<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
-<tr bgcolor="#ffc8d8">
-<td colspan=3 valign=bottom>&nbsp;<br>
-<font color="#000000" face="helvetica, arial"><a name="PlotUtil">class <strong>PlotUtil</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="Detector.Detector.GetNoChangeEdges_fromSteam">
+    <p>def <span class="ident">GetNoChangeEdges_fromSteam</span>(</p><p>self, inputStream, frame_count=20, outputEdgesFilename=None)</p>
+    </div>
     
-<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
-<td colspan=2><tt>用于显示图片的帮助类。可以在彩图中画霍夫线<br>&nbsp;</tt></td></tr>
-<tr><td>&nbsp;</td>
-<td width="100%">Static methods defined here:<br>
-<dl><dt><a name="PlotUtil-PaintLinesOnImage"><strong>PaintLinesOnImage</strong></a>(img, houghLines, paintLineCount=1)</dt><dd><tt>在彩色图中划指定条霍夫线，线段的优先级由长到短<br>
-:param&nbsp;img:&nbsp;BGR图片<br>
-:param&nbsp;houghLines:&nbsp;霍夫线，即HoughLines函数返回的变量<br>
-:param&nbsp;paintLineCount:&nbsp;要画线的个数<br>
-:return:</tt></dd></dl>
 
-<dl><dt><a name="PlotUtil-PutText"><strong>PutText</strong></a>(img, text, location=(30, 30))</dt><dd><tt>在彩图img上使用默认字体写字<br>
-:param&nbsp;img:&nbsp;需要放置文字的图片<br>
-:param&nbsp;text:&nbsp;要写上去的字<br>
-:param&nbsp;location:&nbsp;字的位置<br>
-:return:</tt></dd></dl>
-
-<hr>
-Data descriptors defined here:<br>
-<dl><dt><strong>__dict__</strong></dt>
-<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
-</dl>
-<dl><dt><strong>__weakref__</strong></dt>
-<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
-</dl>
-</td></tr></table> <p>
-<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
-<tr bgcolor="#ffc8d8">
-<td colspan=3 valign=bottom>&nbsp;<br>
-<font color="#000000" face="helvetica, arial"><a name="Transformer">class <strong>Transformer</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
     
-<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
-<td colspan=2><tt>图像转换器，负责图像的读取，变灰度，边缘检测和线段识别。<br>
-《请遵守以下命名规范：前缀image、img代表彩色图。前缀为gray代表灰度图。前缀为edges代表含有edge的黑白图。前缀为lines代表edges中各个线段的结构体。前缀为static代表之后的比较要以该变量为基准进行比较。可以有双前缀》<br>&nbsp;</tt></td></tr>
-<tr><td>&nbsp;</td>
-<td width="100%">Static methods defined here:<br>
-<dl><dt><a name="Transformer-GetEdgesFromGray"><strong>GetEdgesFromGray</strong></a>(grayFrame)</dt><dd><tt>将灰度图调用canny检测出edges，返回灰度edges图<br>
-:param&nbsp;grayFrame:&nbsp;灰度图<br>
-:return:&nbsp;含有各个edges的黑白线条图</tt></dd></dl>
+  
+    <div class="desc"><p>从输入流中提取不动物体的Edges帧
+:param inputStream: 输入文件流
+:param frame_count: 要读取的帧数
+:param outputEdgesFilename: EdgesFrame全部输出到视频为该名的文件中（测试用）
+:return: 不动物体的Edges帧、原本的彩色帧组</p></div>
+  <div class="source_cont">
+</div>
 
-<dl><dt><a name="Transformer-GetEdgesFromImage"><strong>GetEdgesFromImage</strong></a>(imageBGR)</dt><dd><tt>将彩色图转变为带有所有edges信息的黑白线条图<br>
-:param&nbsp;imageBGR:&nbsp;彩色图<br>
-:return:</tt></dd></dl>
-
-<dl><dt><a name="Transformer-GetGrayFromBGRImage"><strong>GetGrayFromBGRImage</strong></a>(image)</dt><dd><tt>将读取的BGR转换为单通道灰度图<br>
-:param&nbsp;image:&nbsp;BGR图片<br>
-:return:&nbsp;灰度图</tt></dd></dl>
-
-<dl><dt><a name="Transformer-GetLinesFromEdges"><strong>GetLinesFromEdges</strong></a>(edgesFrame, threshold=200)</dt><dd><tt>单通道灰度图中识别内部所有线段并返回<br>
-:param&nbsp;edgesFrame:&nbsp;edges图<br>
-:param&nbsp;threshold:&nbsp;阈值限定，线段越明显阈值越大。小于该阈值的线段将被剔除<br>
-:return:</tt></dd></dl>
-
-<dl><dt><a name="Transformer-Imread"><strong>Imread</strong></a>(filename_unicode)</dt><dd><tt>读取含有unicode文件名的图片<br>
-:param&nbsp;filename_unicode:&nbsp;含有unicode的图片名<br>
-:return:</tt></dd></dl>
-
-<dl><dt><a name="Transformer-IsGrayImage"><strong>IsGrayImage</strong></a>(grayOrImg)</dt><dd><tt>检测是否为灰度图，灰度图为True，彩图为False<br>
-:param&nbsp;grayOrImg:&nbsp;图片<br>
-:return:&nbsp;是否为灰度图</tt></dd></dl>
-
-<hr>
-Data descriptors defined here:<br>
-<dl><dt><strong>__dict__</strong></dt>
-<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
-</dl>
-<dl><dt><strong>__weakref__</strong></dt>
-<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
-</dl>
-</td></tr></table> <p>
-<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
-<tr bgcolor="#ffc8d8">
-<td colspan=3 valign=bottom>&nbsp;<br>
-<font color="#000000" face="helvetica, arial"><a name="VideoFileUtil">class <strong>VideoFileUtil</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="Detector.Detector.GetNoChangeEdges_fromVideo">
+    <p>def <span class="ident">GetNoChangeEdges_fromVideo</span>(</p><p>self, videoFilename, startFrameRate=0.0, endFrameRate=1.0, outputEdgesFilename=None)</p>
+    </div>
     
-<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%">Static methods defined here:<br>
-<dl><dt><a name="VideoFileUtil-CloseVideos"><strong>CloseVideos</strong></a>(inputVideoStream=None, outputVideoStream=None)</dt><dd><tt>关闭输入输出视频文件<br>
-:param&nbsp;inputVideoStream:&nbsp;输入文件流<br>
-:param&nbsp;outputVideoStream:&nbsp;输出文件流<br>
-:return:</tt></dd></dl>
 
-<dl><dt><a name="VideoFileUtil-OpenInputVideo"><strong>OpenInputVideo</strong></a>(inputVideoFilename)</dt><dd><tt>打开输入视频文件<br>
-:param&nbsp;inputVideoFilename:&nbsp;输入文件名<br>
-:return:&nbsp;输入文件流</tt></dd></dl>
+    
+  
+    <div class="desc"><p>从视频文件中提取不动物体的帧
+:param videoFilename: 文件名
+:param startFrameRate: 开始读取帧处于视频的比例，必须取0-1之间
+:param endFrameRate: 结束读取帧处于视频的比例，必须取0-1之间
+:param outputEdgesFilename: EdgesFrame全部输出到视频为该名的文件中（测试时用）
+:return: 不动物体的Edges帧</p></div>
+  <div class="source_cont">
+</div>
 
-<dl><dt><a name="VideoFileUtil-OpenOutputVideo"><strong>OpenOutputVideo</strong></a>(outputVideoFilename, inputFileStream, outputVideoEncoding='DIVX')</dt><dd><tt>打开输出视频文件<br>
-:param&nbsp;outputVideoFilename:&nbsp;输出文件名<br>
-:param&nbsp;inputFileStream:&nbsp;输入文件流（用户获得视频基本信息）<br>
-:param&nbsp;outputVideoEncoding:&nbsp;输出文件编码<br>
-:return:&nbsp;输出文件流</tt></dd></dl>
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="Detector.Detector.IsWarningStatusChanged">
+    <p>def <span class="ident">IsWarningStatusChanged</span>(</p><p>self, exceptionOccurred, consecutiveOccurrencesNumber=3)</p>
+    </div>
+    
 
-<dl><dt><a name="VideoFileUtil-OpenVideos"><strong>OpenVideos</strong></a>(inputVideoFilename=None, outputVideoFilename=None, outputVideoEncoding='DIVX')</dt><dd><tt>打开输入输出视频文件<br>
-:param&nbsp;inputVideoFilename:&nbsp;输入文件名<br>
-:param&nbsp;outputVideoFilename:&nbsp;输出文件名<br>
-:param&nbsp;outputVideoEncoding:&nbsp;输出文件的视频编码<br>
-:return:&nbsp;输入输出文件流</tt></dd></dl>
+    
+  
+    <div class="desc"><p>显示warning状态是否需要改变，True为需要显示Warning。False为需要关闭Warning。None为保持不变
+:param exceptionOccurred: 是否发生异常
+:param consecutiveOccurrencesNumber: 连续几次同样时间发生后给予改变当前警报状态的指示
+:return:</p></div>
+  <div class="source_cont">
+</div>
 
-<hr>
-Data descriptors defined here:<br>
-<dl><dt><strong>__dict__</strong></dt>
-<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
-</dl>
-<dl><dt><strong>__weakref__</strong></dt>
-<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
-</dl>
-</td></tr></table></td></tr></table>
-</body></html>
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="Detector.Detector.LinesEquals">
+    <p>def <span class="ident">LinesEquals</span>(</p><p>self, lines1, lines2, comparedLinesCount)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>HoughLines函数返回的lines判断是否相等
+:param lines1: 第一个lines
+:param lines2: 第二个lines
+:param comparedLinesCount: 比较前几条line
+:return: 是否二者相等</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="Detector.Detector.StartUsingFileStream">
+    <p>def <span class="ident">StartUsingFileStream</span>(</p><p>self, videoFilename=&#39;开关柜3.mp4&#39;, compareLineCount=3, videoClipCount=26)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>针对视频文件进行的开关柜检测主函数
+:param videoFilename: 视频文件名
+:param compareLineCount: 需要比较几条线是一样的
+:param videoClipCount: 视频要分成多少段
+:return:</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="Detector.Detector.StartUsingVideoStream">
+    <p>def <span class="ident">StartUsingVideoStream</span>(</p><p>self, source=&#39;rtsp://admin:1234abcd@192.168.1.64&#39;, compareLineCount=3)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>解析输入视频流，并在柜子出现变动时输出警告
+:param source: 视频源
+:param compareLineCount: 需要比较的主要线条个数
+:return:</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+      </div>
+      </div>
+      
+      <div class="item">
+      <p id="Detector.PlotUtil" class="name">class <span class="ident">PlotUtil</span></p>
+      
+  
+    <div class="desc"><p>用于显示图片的帮助类。可以在彩图中画霍夫线</p></div>
+  <div class="source_cont">
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#Detector.PlotUtil">PlotUtil</a></li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Static methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="Detector.PlotUtil.PaintLinesOnImage">
+    <p>def <span class="ident">PaintLinesOnImage</span>(</p><p>img, houghLines, paintLineCount=1)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>在彩色图中划指定条霍夫线，线段的优先级由长到短
+:param img: BGR图片
+:param houghLines: 霍夫线，即HoughLines函数返回的变量
+:param paintLineCount: 要画线的个数
+:return:</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="Detector.PlotUtil.PutText">
+    <p>def <span class="ident">PutText</span>(</p><p>img, text, location=(30, 30))</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>在彩图img上使用默认字体写字
+:param img: 需要放置文字的图片
+:param text: 要写上去的字
+:param location: 字的位置
+:return:</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+      </div>
+      </div>
+      
+      <div class="item">
+      <p id="Detector.Transformer" class="name">class <span class="ident">Transformer</span></p>
+      
+  
+    <div class="desc"><p>图像转换器，负责图像的读取，变灰度，边缘检测和线段识别。
+《请遵守以下命名规范：前缀image、img代表彩色图。前缀为gray代表灰度图。前缀为edges代表含有edge的黑白图。前缀为lines代表edges中各个线段的结构体。前缀为static代表之后的比较要以该变量为基准进行比较。可以有双前缀》</p></div>
+  <div class="source_cont">
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#Detector.Transformer">Transformer</a></li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Static methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="Detector.Transformer.GetEdgesFromGray">
+    <p>def <span class="ident">GetEdgesFromGray</span>(</p><p>grayFrame)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>将灰度图调用canny检测出edges，返回灰度edges图
+:param grayFrame: 灰度图
+:return: 含有各个edges的黑白线条图</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="Detector.Transformer.GetEdgesFromImage">
+    <p>def <span class="ident">GetEdgesFromImage</span>(</p><p>imageBGR)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>将彩色图转变为带有所有edges信息的黑白线条图
+:param imageBGR: 彩色图
+:return:</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="Detector.Transformer.GetGrayFromBGRImage">
+    <p>def <span class="ident">GetGrayFromBGRImage</span>(</p><p>image)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>将读取的BGR转换为单通道灰度图
+:param image: BGR图片
+:return: 灰度图</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="Detector.Transformer.GetLinesFromEdges">
+    <p>def <span class="ident">GetLinesFromEdges</span>(</p><p>edgesFrame, threshold=200)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>单通道灰度图中识别内部所有线段并返回
+:param edgesFrame: edges图
+:param threshold: 阈值限定，线段越明显阈值越大。小于该阈值的线段将被剔除
+:return:</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="Detector.Transformer.Imread">
+    <p>def <span class="ident">Imread</span>(</p><p>filename_unicode)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>读取含有unicode文件名的图片
+:param filename_unicode: 含有unicode的图片名
+:return:</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="Detector.Transformer.IsGrayImage">
+    <p>def <span class="ident">IsGrayImage</span>(</p><p>grayOrImg)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>检测是否为灰度图，灰度图为True，彩图为False
+:param grayOrImg: 图片
+:return: 是否为灰度图</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+      </div>
+      </div>
+      
+      <div class="item">
+      <p id="Detector.VideoUtil" class="name">class <span class="ident">VideoUtil</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#Detector.VideoUtil">VideoUtil</a></li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Static methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="Detector.VideoUtil.CloseVideos">
+    <p>def <span class="ident">CloseVideos</span>(</p><p>*videoStreams)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>关闭所有视频文件
+:param videoStreams: 所有视频的文件流
+:return:</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="Detector.VideoUtil.OpenInputVideo">
+    <p>def <span class="ident">OpenInputVideo</span>(</p><p>inputVideoSource)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>打开输入视频文件
+:param inputVideoSource: 输入文件名或视频流
+:return: 输入文件流</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="Detector.VideoUtil.OpenOutputVideo">
+    <p>def <span class="ident">OpenOutputVideo</span>(</p><p>outputVideoFilename, inputFileStream, outputVideoEncoding=&#39;DIVX&#39;)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>打开输出视频文件
+:param outputVideoFilename: 输出文件名
+:param inputFileStream: 输入文件流（用户获得视频基本信息）
+:param outputVideoEncoding: 输出文件编码
+:return: 输出文件流</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="Detector.VideoUtil.OpenVideos">
+    <p>def <span class="ident">OpenVideos</span>(</p><p>inputVideoSource=None, outputVideoFilename=None, outputVideoEncoding=&#39;DIVX&#39;)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>打开输入输出视频文件
+:param inputVideoSource: 输入文件名或视频流
+:param outputVideoFilename: 输出文件名或视频流
+:param outputVideoEncoding: 输出文件的视频编码
+:return: 输入输出文件流</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="Detector.VideoUtil.ReadFrames">
+    <p>def <span class="ident">ReadFrames</span>(</p><p>stream, readFramesCount)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>从输入流中读取最多readFramesCount个帧并返回，如果没有读取则返回None
+:param stream: 输入流
+:param readFramesCount: 要读取的帧数
+:return:</p></div>
+  <div class="source_cont">
+</div>
+
+  </div>
+  
+      </div>
+      </div>
+
+  </section>
+
+    </article>
+  <div class="clear"> </div>
+  <footer id="footer">
+    <p>
+      Documentation generated by
+      <a href="https://github.com/BurntSushi/pdoc">pdoc 0.3.2</a>
+    </p>
+
+    <p>pdoc is in the public domain with the
+      <a href="http://unlicense.org">UNLICENSE</a></p>
+
+    <p>Design by <a href="http://nadh.in">Kailash Nadh</a></p>
+  </footer>
+</div>
+</body>
+</html>

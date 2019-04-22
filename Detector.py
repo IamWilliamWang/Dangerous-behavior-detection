@@ -2,33 +2,33 @@ import cv2
 import numpy
 
 
-class VideoFileUtil:
+class VideoUtil:
 
     @staticmethod
-    def OpenVideos(inputVideoFilename=None, outputVideoFilename=None, outputVideoEncoding='DIVX'):  # MPEG-4编码
+    def OpenVideos(inputVideoSource=None, outputVideoFilename=None, outputVideoEncoding='DIVX'):  # MPEG-4编码
         '''
         打开输入输出视频文件
-        :param inputVideoFilename: 输入文件名
-        :param outputVideoFilename: 输出文件名
+        :param inputVideoSource: 输入文件名或视频流
+        :param outputVideoFilename: 输出文件名或视频流
         :param outputVideoEncoding: 输出文件的视频编码
         :return: 输入输出文件流
         '''
         videoInput = None
         videoOutput = None
-        if inputVideoFilename is not None:
-            videoInput = VideoFileUtil.OpenInputVideo(inputVideoFilename)  # 打开输入视频文件
+        if inputVideoSource is not None:
+            videoInput = VideoUtil.OpenInputVideo(inputVideoSource)  # 打开输入视频文件
         if outputVideoFilename is not None:
-            videoOutput = VideoFileUtil.OpenOutputVideo(outputVideoFilename, videoInput, outputVideoEncoding)
+            videoOutput = VideoUtil.OpenOutputVideo(outputVideoFilename, videoInput, outputVideoEncoding)
         return videoInput, videoOutput
 
     @staticmethod
-    def OpenInputVideo(inputVideoFilename):
+    def OpenInputVideo(inputVideoSource):
         '''
         打开输入视频文件
-        :param inputVideoFilename: 输入文件名
+        :param inputVideoSource: 输入文件名或视频流
         :return: 输入文件流
         '''
-        return cv2.VideoCapture(inputVideoFilename)
+        return cv2.VideoCapture(inputVideoSource)
 
     @staticmethod
     def OpenOutputVideo(outputVideoFilename, inputFileStream, outputVideoEncoding='DIVX'):
@@ -47,17 +47,34 @@ class VideoFileUtil:
                                False)
 
     @staticmethod
-    def CloseVideos(inputVideoStream=None, outputVideoStream=None):
+    def ReadFrames(stream, readFramesCount):
         '''
-        关闭输入输出视频文件
-        :param inputVideoStream: 输入文件流
-        :param outputVideoStream: 输出文件流
+        从输入流中读取最多readFramesCount个帧并返回，如果没有读取则返回None
+        :param stream: 输入流
+        :param readFramesCount: 要读取的帧数
         :return:
         '''
-        if inputVideoStream is not None:
-            inputVideoStream.release()
-        if outputVideoStream is not None:
-            outputVideoStream.release()
+        frames = []
+        while stream.isOpened():
+            ret, frame = stream.read()
+            if ret is False:
+                break
+            frames += [frame]
+            if len(frames) >= readFramesCount:
+                break
+        if len(frames) is 0:
+            return None
+        return frames
+
+    @staticmethod
+    def CloseVideos(*videoStreams):
+        '''
+        关闭所有视频文件
+        :param videoStreams: 所有视频的文件流
+        :return:
+        '''
+        for videoSteam in videoStreams:
+            videoSteam.release()
 
 
 class Transformer:
@@ -203,11 +220,11 @@ class Detector:
         :return: 不动物体的Edges帧
         '''
         # 打开输入输出视频文件
-        videoInput = VideoFileUtil.OpenInputVideo(videoFilename)
+        videoInput = VideoUtil.OpenInputVideo(videoFilename)
         frame_count = videoInput.get(cv2.CAP_PROP_FRAME_COUNT)  # 获取视频总共的帧数
         outputVideo = None  # 声明输出文件
         if outputEdgesFilename is not None:
-            outputVideo = VideoFileUtil.OpenOutputVideo(outputEdgesFilename, videoInput)
+            outputVideo = VideoUtil.OpenOutputVideo(outputEdgesFilename, videoInput)
         staticEdges = None  # 储存固定的Edges
         videoInput.set(cv2.CAP_PROP_POS_FRAMES, int(frame_count * startFrameRate))  # 指定读取的开始位置
         self.__firstFramePosition = int(frame_count * startFrameRate)  # 记录第一帧的位置
@@ -226,7 +243,7 @@ class Detector:
             if outputEdgesFilename is not None:
                 outputVideo.write(edges)  # 写入边缘识别结果
             frame_count -= 1
-            VideoFileUtil.CloseVideos(videoInput, outputVideo)
+            VideoUtil.CloseVideos(videoInput, outputVideo)
         return staticEdges
 
     def GetNoChangeEdges_fromSteam(self, inputStream, frame_count=20, outputEdgesFilename=None):
@@ -239,7 +256,7 @@ class Detector:
         '''
         outputVideo = None
         if outputEdgesFilename is not None:
-            outputVideo = VideoFileUtil.OpenOutputVideo(outputEdgesFilename, inputStream)
+            outputVideo = VideoUtil.OpenOutputVideo(outputEdgesFilename, inputStream)
         staticEdges = None
         self.__originalFrames = []
         while inputStream.isOpened() and frame_count >= 0:
@@ -306,25 +323,6 @@ class Detector:
                     cv2.destroyAllWindows()
                     return
 
-    def ReadFrames(self, stream, readFramesCount):
-        '''
-        从输入流中读取readFramesCount个帧并返回，如果没有读取则返回None
-        :param stream: 输入流
-        :param readFramesCount: 要读取的帧数
-        :return:
-        '''
-        frames = []
-        while stream.isOpened():
-            ret, frame = stream.read()
-            if ret is False:
-                break
-            frames += [frame]
-            if len(frames) >= readFramesCount:
-                break
-        if len(frames) is 0:
-            return None
-        return frames
-
     def IsWarningStatusChanged(self, exceptionOccurred, consecutiveOccurrencesNumber=3):
         '''
         显示warning状态是否需要改变，True为需要显示Warning。False为需要关闭Warning。None为保持不变
@@ -357,7 +355,7 @@ class Detector:
         '''
         # 初始化输入流
         # 获得静态Edges的Lines信息
-        inputStream = cv2.VideoCapture(source)
+        inputStream = VideoUtil.OpenInputVideo(source)
         staticEdges = self.GetNoChangeEdges_fromSteam(inputStream, 20)
         staticLines = Transformer.GetLinesFromEdges(staticEdges)
         # 初始化处理参数
