@@ -3,7 +3,8 @@ import numpy as np
 
 
 class FileUtil:
-    def CutVideo(oldVideoFilename, newVideoFilename, fromFrame, toFrame):
+    @staticmethod
+    def __CutVideo(oldVideoFilename, newVideoFilename, fromFrame, toFrame):
         '''
         @Deprecated 剪切视频，储存到新文件中
         :param oldVideoFilename:
@@ -33,6 +34,7 @@ class FileUtil:
         videoInput.release()
         videoOutput.release()
 
+    @staticmethod
     def OpenVideos(inputVideoFilename=None, outputVideoFilename=None, outputVideoEncoding='DIVX'):  # MPEG-4编码
         '''
         打开输入输出视频文件
@@ -48,6 +50,7 @@ class FileUtil:
             videoOutput = FileUtil.OpenOutputVideo(outputVideoFilename, videoInput, outputVideoEncoding)
         return videoInput, videoOutput
 
+    @staticmethod
     def OpenInputVideo(inputVideoFilename):
         '''
         打开输入视频文件
@@ -55,6 +58,7 @@ class FileUtil:
         '''
         return cv2.VideoCapture(inputVideoFilename)
 
+    @staticmethod
     def OpenOutputVideo(outputVideoFilename, inputFileStream, outputVideoEncoding='DIVX'):
         '''
         打开输出视频文件
@@ -69,6 +73,7 @@ class FileUtil:
         return cv2.VideoWriter(outputVideoFilename, cv2.VideoWriter_fourcc(*outputVideoEncoding), fps, size,
                                False)
 
+    @staticmethod
     def CloseVideos(inputVideoStream=None, outputVideoStream=None):
         '''
         关闭输入输出视频文件
@@ -94,6 +99,15 @@ class Transformer:
         :return:
         '''
         return cv2.imdecode(np.fromfile(filename_unicode, dtype=np.uint8), -1)
+
+    @staticmethod
+    def IsGrayImage(grayOrImg):
+        '''
+        检测是否为灰度图，灰度图为True，彩图为False
+        :param grayOrImg: 图片
+        :return:
+        '''
+        return len(grayOrImg.shape) is 2
 
     @staticmethod
     def GetGrayFromBGRImage(image):
@@ -186,6 +200,8 @@ class Detector:
         :param comparedLinesCount: 比较前几条line
         :return: 是否二者相等
         '''
+        if lines1 is None or lines2 is None:
+            return False
         sameCount = 0
         diffCount = 0
         try:
@@ -196,11 +212,11 @@ class Detector:
                             diffCount += 1
                         else:
                             sameCount += 1
-        except IndexError:  # 阈值过高的话会导致找不到那么多条line
+        except IndexError:  # 阈值过高的话会导致找不到那么多条line，报错可以忽略
             pass
         return sameCount / (sameCount + diffCount) > 0.9  # 不同到一定程度再报警
 
-    def EdgesLinesEquals(self, linesList, compareLineCount):
+    def __EdgesLinesEquals(self, linesList, compareLineCount):
         '''
         @Deprecated 比较linesList中两两lines之间有没有相同的line（只比较他俩的前compareLineCount个）
         :param linesList: 存Lines的List
@@ -405,6 +421,7 @@ class Detector:
                     break
         # When everything done, release the capture  
         cv2.destroyAllWindows()
+
 
 
 if __name__ == '__main__':
