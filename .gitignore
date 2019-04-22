@@ -1,6 +1,6 @@
 # IDE datas
 .idea/
-.pytest_cache/
+*cache*/
 # Videos
 *.mp4
 *.avi

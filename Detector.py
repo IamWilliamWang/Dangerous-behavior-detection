@@ -3,36 +3,6 @@ import numpy
 
 
 class VideoFileUtil:
-    @staticmethod
-    def __CutVideo(oldVideoFilename, newVideoFilename, fromFrame, toFrame):
-        '''
-        @Deprecated 剪切视频，储存到新文件中
-        :param oldVideoFilename:
-        :param newVideoFilename:
-        :param fromFrame:
-        :param toFrame:
-        :return:
-        '''
-        # 打开输入输出视频文件
-        videoInput = cv2.VideoCapture(oldVideoFilename)
-        # 获得码率及尺寸
-        fps = videoInput.get(cv2.CAP_PROP_FPS)
-        size = (int(videoInput.get(cv2.CAP_PROP_FRAME_WIDTH)),
-                int(videoInput.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-        frameCount = videoInput.get(cv2.CAP_PROP_FRAME_COUNT)
-        if toFrame > frameCount:
-            return
-        videoOutput = cv2.VideoWriter(newVideoFilename, cv2.VideoWriter_fourcc(*'DIVX'), fps, size, False)  # MPEG-4编码
-        framesLen = toFrame - fromFrame
-        videoInput.set(cv2.CAP_PROP_POS_FRAMES, fromFrame)
-        while videoInput.isOpened() and framesLen >= 0:
-            ret, frame = videoInput.read()
-            if ret is False:
-                break
-            videoOutput.write(frame)
-            framesLen -= 1
-        videoInput.release()
-        videoOutput.release()
 
     @staticmethod
     def OpenVideos(inputVideoFilename=None, outputVideoFilename=None, outputVideoEncoding='DIVX'):  # MPEG-4编码
@@ -194,10 +164,10 @@ class PlotUtil:
 
 class Detector:
     def __init__(self):
-        self.firstFramePosition = None  # 处理视频文件时记录的当前片段在视频中的开始帧号
-        self.lastFramePosition = None  # 处理视频文件时记录的当前片段在视频中的结束帧号
-        self.originalFrames = None  # 处理视频流时记录当前片段的原始录像
-        self.showWarningMutex = 0  # 用于切换警报状态的信号量
+        self.__firstFramePosition = None  # 处理视频文件时记录的当前片段在视频中的开始帧号
+        self.__lastFramePosition = None  # 处理视频文件时记录的当前片段在视频中的结束帧号
+        self.__originalFrames = None  # 处理视频流时记录当前片段的原始录像
+        self.__showWarningMutex = 0  # 用于切换警报状态的信号量
 
     def LinesEquals(self, lines1, lines2, comparedLinesCount):
         '''
@@ -223,19 +193,6 @@ class Detector:
             pass
         return sameCount / (sameCount + diffCount) > 0.9  # 不同到一定程度再报警
 
-    def __EdgesLinesEquals(self, linesList, compareLineCount):
-        '''
-        @Deprecated 比较linesList中两两lines之间有没有相同的line（只比较他俩的前compareLineCount个）
-        :param linesList: 存Lines的List
-        :param compareLineCount: 比较前几个lines
-        :return:
-        '''
-        for i in range(len(linesList) - 1):
-            for j in range(i + 1, len(linesList), 2):
-                if self.LinesEquals(linesList[i], linesList[j], compareLineCount):
-                    return True
-        return False
-
     def GetNoChangeEdges_fromVideo(self, videoFilename, startFrameRate=0., endFrameRate=1., outputEdgesFilename=None):
         '''
         从视频文件中提取不动物体的帧
@@ -253,8 +210,8 @@ class Detector:
             outputVideo = VideoFileUtil.OpenOutputVideo(outputEdgesFilename, videoInput)
         staticEdges = None  # 储存固定的Edges
         videoInput.set(cv2.CAP_PROP_POS_FRAMES, int(frame_count * startFrameRate))  # 指定读取的开始位置
-        self.firstFramePosition = int(frame_count * startFrameRate)  # 记录第一帧的位置
-        self.lastFramePosition = int(frame_count * endFrameRate)  # 记录最后一帧的位置
+        self.__firstFramePosition = int(frame_count * startFrameRate)  # 记录第一帧的位置
+        self.__lastFramePosition = int(frame_count * endFrameRate)  # 记录最后一帧的位置
         if endFrameRate != 1:  # 如果提前结束，则对总帧数进行修改
             frame_count = int(frame_count * (endFrameRate - startFrameRate))
         while videoInput.isOpened() and frame_count >= 0:  # 循环读取
@@ -284,12 +241,12 @@ class Detector:
         if outputEdgesFilename is not None:
             outputVideo = VideoFileUtil.OpenOutputVideo(outputEdgesFilename, inputStream)
         staticEdges = None
-        self.originalFrames = []
+        self.__originalFrames = []
         while inputStream.isOpened() and frame_count >= 0:
             ret, frame = inputStream.read()
             if ret is False:
                 break
-            self.originalFrames += [frame]
+            self.__originalFrames += [frame]
             edges = Transformer.GetEdgesFromImage(frame)  # 边缘识别
             if staticEdges is None:
                 staticEdges = edges  # 初始化staticEdges
@@ -332,8 +289,8 @@ class Detector:
                     error = True
 
             # 获得检测线条的视频片段每一帧
-            videoInput.set(cv2.CAP_PROP_POS_FRAMES, self.firstFramePosition)
-            for i in range(self.firstFramePosition, self.lastFramePosition):
+            videoInput.set(cv2.CAP_PROP_POS_FRAMES, self.__firstFramePosition)
+            for i in range(self.__firstFramePosition, self.__lastFramePosition):
                 if videoInput.isOpened() is False:
                     break
                 ret, frame = videoInput.read()
@@ -376,18 +333,18 @@ class Detector:
         :return:
         '''
         if exceptionOccurred:  # 如果发生异常
-            if self.showWarningMutex < 0:  # 清除信号量向正方向
-                self.showWarningMutex = 0
+            if self.__showWarningMutex < 0:  # 清除信号量向正方向
+                self.__showWarningMutex = 0
             else:  # 在正方向，则增添信号量
-                self.showWarningMutex += 1
-            if self.showWarningMutex > (consecutiveOccurrencesNumber - 1):
+                self.__showWarningMutex += 1
+            if self.__showWarningMutex > (consecutiveOccurrencesNumber - 1):
                 return True  # 连续3次就返回显示warning
         else:
-            if self.showWarningMutex > 0:
-                self.showWarningMutex = 0
+            if self.__showWarningMutex > 0:
+                self.__showWarningMutex = 0
             else:
-                self.showWarningMutex -= 1
-            if self.showWarningMutex < -(consecutiveOccurrencesNumber - 1):
+                self.__showWarningMutex -= 1
+            if self.__showWarningMutex < -(consecutiveOccurrencesNumber - 1):
                 return False  # 连续3次就返回撤销warning
         return None
 
@@ -414,10 +371,10 @@ class Detector:
                 break
             if self.LinesEquals(staticLines, lines, compareLineCount):
                 exceptionOccurred = False  # 当前帧下没有发生异常
-                print('未检测到异常。', self.showWarningMutex)
+                print('未检测到异常。', self.__showWarningMutex)
             else:
                 exceptionOccurred = True
-                print('检测到异常！！', self.showWarningMutex)
+                print('检测到异常！！', self.__showWarningMutex)
             changeShowWarningStatus = self.IsWarningStatusChanged(exceptionOccurred)  # 是否改变报警状态
             if changeShowWarningStatus is None:
                 pass
@@ -425,7 +382,7 @@ class Detector:
                 showWarning = True
             else:
                 showWarning = False
-            for frame in self.originalFrames:
+            for frame in self.__originalFrames:
                 PlotUtil.PaintLinesOnImage(frame, lines, compareLineCount)
                 if showWarning:
                     PlotUtil.PutText(frame, 'Warning')
