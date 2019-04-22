@@ -1,8 +1,8 @@
 import cv2
-import numpy as np
+import numpy
 
 
-class FileUtil:
+class VideoFileUtil:
     @staticmethod
     def __CutVideo(oldVideoFilename, newVideoFilename, fromFrame, toFrame):
         '''
@@ -38,23 +38,25 @@ class FileUtil:
     def OpenVideos(inputVideoFilename=None, outputVideoFilename=None, outputVideoEncoding='DIVX'):  # MPEG-4编码
         '''
         打开输入输出视频文件
-        :param outputVideoFilename:
-        :param outputVideoEncoding:
-        :return:
+        :param inputVideoFilename: 输入文件名
+        :param outputVideoFilename: 输出文件名
+        :param outputVideoEncoding: 输出文件的视频编码
+        :return: 输入输出文件流
         '''
         videoInput = None
         videoOutput = None
         if inputVideoFilename is not None:
-            videoInput = FileUtil.OpenInputVideo(inputVideoFilename)  # 打开输入视频文件
+            videoInput = VideoFileUtil.OpenInputVideo(inputVideoFilename)  # 打开输入视频文件
         if outputVideoFilename is not None:
-            videoOutput = FileUtil.OpenOutputVideo(outputVideoFilename, videoInput, outputVideoEncoding)
+            videoOutput = VideoFileUtil.OpenOutputVideo(outputVideoFilename, videoInput, outputVideoEncoding)
         return videoInput, videoOutput
 
     @staticmethod
     def OpenInputVideo(inputVideoFilename):
         '''
         打开输入视频文件
-        :return:
+        :param inputVideoFilename: 输入文件名
+        :return: 输入文件流
         '''
         return cv2.VideoCapture(inputVideoFilename)
 
@@ -62,9 +64,10 @@ class FileUtil:
     def OpenOutputVideo(outputVideoFilename, inputFileStream, outputVideoEncoding='DIVX'):
         '''
         打开输出视频文件
-        :param inputFileStream:
-        :param outputVideoEncoding:
-        :return:
+        :param outputVideoFilename: 输出文件名
+        :param inputFileStream: 输入文件流（用户获得视频基本信息）
+        :param outputVideoEncoding: 输出文件编码
+        :return: 输出文件流
         '''
         # 获得码率及尺寸
         fps = int(inputFileStream.get(cv2.CAP_PROP_FPS))
@@ -77,7 +80,8 @@ class FileUtil:
     def CloseVideos(inputVideoStream=None, outputVideoStream=None):
         '''
         关闭输入输出视频文件
-        :param outputVideoStream:
+        :param inputVideoStream: 输入文件流
+        :param outputVideoStream: 输出文件流
         :return:
         '''
         if inputVideoStream is not None:
@@ -96,16 +100,17 @@ class Transformer:
     def Imread(filename_unicode):
         '''
         读取含有unicode文件名的图片
+        :param filename_unicode: 含有unicode的图片名
         :return:
         '''
-        return cv2.imdecode(np.fromfile(filename_unicode, dtype=np.uint8), -1)
+        return cv2.imdecode(numpy.fromfile(filename_unicode, dtype=numpy.uint8), -1)
 
     @staticmethod
     def IsGrayImage(grayOrImg):
         '''
         检测是否为灰度图，灰度图为True，彩图为False
         :param grayOrImg: 图片
-        :return:
+        :return: 是否为灰度图
         '''
         return len(grayOrImg.shape) is 2
 
@@ -146,7 +151,7 @@ class Transformer:
         :param threshold: 阈值限定，线段越明显阈值越大。小于该阈值的线段将被剔除
         :return:
         '''
-        return cv2.HoughLines(edgesFrame, 1, np.pi / 180, threshold)
+        return cv2.HoughLines(edgesFrame, 1, numpy.pi / 180, threshold)
 
 
 class PlotUtil:
@@ -165,8 +170,8 @@ class PlotUtil:
         '''
         for i in range(paintLineCount):
             for rho, theta in houghLines[i]:
-                a = np.cos(theta)
-                b = np.sin(theta)
+                a = numpy.cos(theta)
+                b = numpy.sin(theta)
                 x0 = a * rho
                 y0 = b * rho
                 x1 = int(x0 + 1000 * (-b))
@@ -176,13 +181,15 @@ class PlotUtil:
                 cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
 
     @staticmethod
-    def PutText(img, text):
+    def PutText(img, text, location=(30, 30)):
         '''
         在彩图img上使用默认字体写字
+        :param img: 需要放置文字的图片
         :param text: 要写上去的字
+        :param location: 字的位置
         :return:
         '''
-        cv2.putText(img, text, (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 2, cv2.LINE_AA)
+        cv2.putText(img, text, location, cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 2, cv2.LINE_AA)
 
 
 class Detector:
@@ -233,16 +240,17 @@ class Detector:
         '''
         从视频文件中提取不动物体的帧
         :param videoFilename: 文件名
-        :param startFrameRate 开始读取帧处于视频的比例，必须取0-1之间
-        :param outputEdgesFilename （测试用）EdgesFrame全部输出到视频为该名的文件中
+        :param startFrameRate: 开始读取帧处于视频的比例，必须取0-1之间
+        :param endFrameRate: 结束读取帧处于视频的比例，必须取0-1之间
+        :param outputEdgesFilename: EdgesFrame全部输出到视频为该名的文件中（测试时用）
         :return: 不动物体的Edges帧
         '''
         # 打开输入输出视频文件
-        videoInput = FileUtil.OpenInputVideo(videoFilename)
+        videoInput = VideoFileUtil.OpenInputVideo(videoFilename)
         frame_count = videoInput.get(cv2.CAP_PROP_FRAME_COUNT)  # 获取视频总共的帧数
         outputVideo = None  # 声明输出文件
         if outputEdgesFilename is not None:
-            outputVideo = FileUtil.OpenOutputVideo(outputEdgesFilename, videoInput)
+            outputVideo = VideoFileUtil.OpenOutputVideo(outputEdgesFilename, videoInput)
         staticEdges = None  # 储存固定的Edges
         videoInput.set(cv2.CAP_PROP_POS_FRAMES, int(frame_count * startFrameRate))  # 指定读取的开始位置
         self.firstFramePosition = int(frame_count * startFrameRate)  # 记录第一帧的位置
@@ -261,20 +269,20 @@ class Detector:
             if outputEdgesFilename is not None:
                 outputVideo.write(edges)  # 写入边缘识别结果
             frame_count -= 1
-            FileUtil.CloseVideos(videoInput, outputVideo)
+            VideoFileUtil.CloseVideos(videoInput, outputVideo)
         return staticEdges
 
     def GetNoChangeEdges_fromSteam(self, inputStream, frame_count=20, outputEdgesFilename=None):
         '''
         从输入流中提取不动物体的Edges帧
         :param inputStream: 输入文件流
-        :param frame_count 要读取的帧数
-        :param outputEdgesFilename （测试用）EdgesFrame全部输出到视频为该名的文件中
+        :param frame_count: 要读取的帧数
+        :param outputEdgesFilename: EdgesFrame全部输出到视频为该名的文件中（测试用）
         :return: 不动物体的Edges帧、原本的彩色帧组
         '''
         outputVideo = None
         if outputEdgesFilename is not None:
-            outputVideo = FileUtil.OpenOutputVideo(outputEdgesFilename, inputStream)
+            outputVideo = VideoFileUtil.OpenOutputVideo(outputEdgesFilename, inputStream)
         staticEdges = None
         self.originalFrames = []
         while inputStream.isOpened() and frame_count >= 0:
@@ -384,6 +392,12 @@ class Detector:
         return None
 
     def StartUsingVideoStream(self, source='rtsp://admin:1234abcd@192.168.1.64', compareLineCount=3):
+        '''
+        解析输入视频流，并在柜子出现变动时输出警告
+        :param source: 视频源
+        :param compareLineCount: 需要比较的主要线条个数
+        :return:
+        '''
         # 初始化输入流
         # 获得静态Edges的Lines信息
         inputStream = cv2.VideoCapture(source)
@@ -421,7 +435,6 @@ class Detector:
                     break
         # When everything done, release the capture  
         cv2.destroyAllWindows()
-
 
 
 if __name__ == '__main__':
