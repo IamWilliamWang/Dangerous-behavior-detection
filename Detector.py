@@ -4,6 +4,7 @@ import socket
 import struct
 import sys
 
+
 class VideoUtil:
 
     @staticmethod
@@ -208,33 +209,38 @@ class PlotUtil:
         cv2.putText(img, text, location, cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 2, cv2.LINE_AA)
 
 
-SEND_FRAMES = True
+class SocketServer:
+    @staticmethod
+    def StartServer():
+        return SocketServer()
 
-
-class SocketUtil:
     def __init__(self):
         try:
             self.mSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             # 防止socket server重启后端口被占用（socket.error: [Errno 98] Address already in use）
             self.mSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.mSocket.bind(('127.0.0.1', 6666))
-            print('Bind socket success.')
-            self.mSocket.listen(1)
+            # print('Bind socket success.')
+            self.mSocket.listen(1)  # 最多接受一个连接请求
         except socket.error as msg:
             print(msg)
             sys.exit(1)
-        print('Waiting connection...')
-    def sendframe(self, frames):
-        connection, address = self.mSocket.accept()
-        print('Accept new connection from {0}'.format(address))
-        header = struct.pack('hhh', frames.shape[0], frames.shape[1], frames.shape[2])
-        connection.sendall(header)
-        packet = struct.pack('=%sh' % frames.size, *frames.flatten())
-        connection.sendall(packet)
-        # dataPacket = struct.pack('hhhhh', 1, 2, 3, 4, 5)
-        #connection.sendall(dataPacket)
-        connection.close()
-        print('Close connection from {0}'.format(address))
+
+    def SendFrameImage(self, image):
+        try:
+            print('Waiting connection to receive image...')
+            connection, address = self.mSocket.accept()  # 一直等待连接请求
+            print('Accept new connection from {0}'.format(address))
+            header = struct.pack('hhh', image.shape[0], image.shape[1], image.shape[2])  # 发送三个short型(16bit)的shape信息
+            connection.sendall(header)  # 发送
+            packet = struct.pack('=%sh' % image.size, *image.flatten())  # 将image展开为一维（没看懂）
+            connection.sendall(packet)
+            connection.close()
+            print('Close connection from {0}'.format(address))
+        except socket.error as msg:
+            print(msg)
+            sys.exit(1)
+
 
 class Detector:
     def __init__(self):
@@ -269,7 +275,7 @@ class Detector:
 
     def GetNoChangeEdges_fromVideo(self, videoFilename, startFrameRate=0., endFrameRate=1., outputEdgesFilename=None):
         '''
-        从视频文件中提取不动物体的帧
+        @Deprecated 从视频文件中提取不动物体的帧
         :param videoFilename: 文件名
         :param startFrameRate: 开始读取帧处于视频的比例，必须取0-1之间
         :param endFrameRate: 结束读取帧处于视频的比例，必须取0-1之间
@@ -415,7 +421,9 @@ class Detector:
         inputStream = VideoUtil.OpenInputVideo(source)
         staticEdges = self.GetNoChangeEdges_fromSteam(inputStream, 20)
         staticLines = Transformer.GetLinesFromEdges(staticEdges)
-        mSocket = SocketUtil()
+        # 启动Socket，用于发送每帧
+        SEND_FRAMES = True
+        mSocket = SocketServer.StartServer()
         # 初始化处理参数
         showWarning = False  # 显示警告提示
         # 启动检测
@@ -442,8 +450,8 @@ class Detector:
                 PlotUtil.PaintLinesOnImage(frame, lines, compareLineCount)
                 if showWarning:
                     PlotUtil.PutText(frame, 'Warning')
-                if (SEND_FRAMES):
-                    mSocket.sendframe(frame)
+                if SEND_FRAMES:
+                    mSocket.SendFrameImage(frame)
                 cv2.imshow('Result', frame)
                 if cv2.waitKey(1) == 27:
                     inputStream.release()
@@ -453,4 +461,7 @@ class Detector:
 
 
 if __name__ == '__main__':
-    Detector().StartUsingVideoStream('开关柜3.mp4')
+    if len(sys.argv) is 1:
+        Detector().StartUsingVideoStream()
+    else:
+        Detector().StartUsingVideoStream(sys.argv[1])
