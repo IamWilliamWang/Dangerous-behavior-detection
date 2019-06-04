@@ -1,6 +1,8 @@
 import cv2
 import numpy
-
+import socket
+import struct
+import sys
 
 class VideoUtil:
 
@@ -65,6 +67,33 @@ class VideoUtil:
         if len(frames) is 0:
             return None
         return frames
+
+    @staticmethod
+    def GetFps(videoStream):
+        '''
+        获得视频流的FPS
+        :param videoStream: 视频输入流
+        :return: 每秒多少帧
+        '''
+        return int(videoStream.get(cv2.CAP_PROP_FPS))
+
+    @staticmethod
+    def GetVideoFileFrameCount(videoFileStream):
+        '''
+        获得视频文件的总帧数
+        :param videoFileStream: 视频文件流
+        :return: 视频文件的总帧数
+        '''
+        return videoFileStream.get(cv2.CAP_PROP_FRAME_COUNT)
+
+    @staticmethod
+    def GetWidthAndHeight(videoStream):
+        '''
+        获得视频流的宽度和高度
+        :param videoStream: 视频流
+        :return: 视频流的宽度和高度
+        '''
+        return int(videoStream.get(cv2.CAP_PROP_FRAME_WIDTH)), int(videoStream.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
     @staticmethod
     def CloseVideos(*videoStreams):
@@ -178,6 +207,34 @@ class PlotUtil:
         '''
         cv2.putText(img, text, location, cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 2, cv2.LINE_AA)
 
+
+SEND_FRAMES = True
+
+
+class SocketUtil:
+    def __init__(self):
+        try:
+            self.mSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            # 防止socket server重启后端口被占用（socket.error: [Errno 98] Address already in use）
+            self.mSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.mSocket.bind(('127.0.0.1', 6666))
+            print('Bind socket success.')
+            self.mSocket.listen(1)
+        except socket.error as msg:
+            print(msg)
+            sys.exit(1)
+        print('Waiting connection...')
+    def sendframe(self, frames):
+        connection, address = self.mSocket.accept()
+        print('Accept new connection from {0}'.format(address))
+        header = struct.pack('hhh', frames.shape[0], frames.shape[1], frames.shape[2])
+        connection.sendall(header)
+        packet = struct.pack('=%sh' % frames.size, *frames.flatten())
+        connection.sendall(packet)
+        # dataPacket = struct.pack('hhhhh', 1, 2, 3, 4, 5)
+        #connection.sendall(dataPacket)
+        connection.close()
+        print('Close connection from {0}'.format(address))
 
 class Detector:
     def __init__(self):
@@ -358,6 +415,7 @@ class Detector:
         inputStream = VideoUtil.OpenInputVideo(source)
         staticEdges = self.GetNoChangeEdges_fromSteam(inputStream, 20)
         staticLines = Transformer.GetLinesFromEdges(staticEdges)
+        mSocket = SocketUtil()
         # 初始化处理参数
         showWarning = False  # 显示警告提示
         # 启动检测
@@ -384,6 +442,8 @@ class Detector:
                 PlotUtil.PaintLinesOnImage(frame, lines, compareLineCount)
                 if showWarning:
                     PlotUtil.PutText(frame, 'Warning')
+                if (SEND_FRAMES):
+                    mSocket.sendframe(frame)
                 cv2.imshow('Result', frame)
                 if cv2.waitKey(1) == 27:
                     inputStream.release()
@@ -393,4 +453,4 @@ class Detector:
 
 
 if __name__ == '__main__':
-    Detector().StartUsingVideoStream()
+    Detector().StartUsingVideoStream('开关柜3.mp4')
