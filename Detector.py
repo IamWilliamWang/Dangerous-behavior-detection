@@ -222,24 +222,33 @@ class SocketServer:
             self.mSocket.bind(('127.0.0.1', 6666))
             # print('Bind socket success.')
             self.mSocket.listen(1)  # 最多接受一个连接请求
+            print('Waiting connection to receive image...')
+            self.connection, self.address = self.mSocket.accept()  # 一直等待连接请求
+            print('Accept new connection from {0}'.format(self.address))
+        except socket.error as msg:
+            print(msg)
+            sys.exit(1)
+
+    def SendFrameShape(self, image):
+        try:
+            header = struct.pack('hhh', image.shape[0], image.shape[1], image.shape[2])  # 发送三个short型(16bit)的shape信息
+            self.connection.sendall(header)
         except socket.error as msg:
             print(msg)
             sys.exit(1)
 
     def SendFrameImage(self, image):
         try:
-            print('Waiting connection to receive image...')
-            connection, address = self.mSocket.accept()  # 一直等待连接请求
-            print('Accept new connection from {0}'.format(address))
-            header = struct.pack('hhh', image.shape[0], image.shape[1], image.shape[2])  # 发送三个short型(16bit)的shape信息
-            connection.sendall(header)  # 发送
             packet = struct.pack('=%sh' % image.size, *image.flatten())  # 将image展开为一维（没看懂）
-            connection.sendall(packet)
-            connection.close()
-            print('Close connection from {0}'.format(address))
+            print('Sending frame...')
+            self.connection.sendall(packet)
         except socket.error as msg:
             print(msg)
             sys.exit(1)
+
+    def CloseConnection(self):
+        self.connection.close()
+        print('Close connection from {0}'.format(self.address))
 
 
 class Detector:
@@ -424,6 +433,7 @@ class Detector:
         # 启动Socket，用于发送每帧
         SEND_FRAMES = True
         mSocket = SocketServer.StartServer()
+        mSocket.SendFrameShape(self.__originalFrames[0])
         # 初始化处理参数
         showWarning = False  # 显示警告提示
         # 启动检测
@@ -458,6 +468,7 @@ class Detector:
                     break
         # When everything done, release the capture  
         cv2.destroyAllWindows()
+        mSocket.CloseConnection()
 
 
 if __name__ == '__main__':
