@@ -177,7 +177,7 @@ class PlotUtil:
     '''
 
     @staticmethod
-    def PaintLinesOnImage(img, houghLines, paintLineCount=1):
+    def PaintLinesOnImage(img, houghLines, paintLineCount=1, color=(0, 0, 255)):
         '''
         在彩色图中划指定条霍夫线，线段的优先级由长到短
         :param img: BGR图片
@@ -195,7 +195,7 @@ class PlotUtil:
                 y1 = int(y0 + 1000 * a)
                 x2 = int(x0 - 1000 * (-b))
                 y2 = int(y0 - 1000 * a)
-                cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
+                cv2.line(img, (x1, y1), (x2, y2), color, 2)
 
     @staticmethod
     def PutText(img, text, location=(30, 30)):
@@ -457,7 +457,7 @@ class Detector:
             else:
                 showWarning = False
             for frame in self.__originalFrames:
-                PlotUtil.PaintLinesOnImage(frame, lines, compareLineCount)
+                PlotUtil.PaintLinesOnImage(frame, lines, compareLineCount, (255, 0, 0))
                 if showWarning:
                     PlotUtil.PutText(frame, 'Warning')
                 if SEND_FRAMES:
