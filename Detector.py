@@ -3,6 +3,7 @@ import numpy
 import socket
 import struct
 import sys
+from datetime import datetime
 
 
 class VideoUtil:
@@ -251,7 +252,22 @@ class SocketServer:
         print('Close connection from {0}'.format(self.address))
 
 
+lastSendSec = -1
+
+
+def CanIgnore():
+    global lastSendSec
+    now_second = datetime.now().second
+    pauseSec = 1
+    if (now_second + 60 - lastSendSec) % 60 >= pauseSec:  # 相差大于pauseSec秒
+        lastSendSec = now_second
+        return False
+    return True
+
+
 def SendUDP(content: str, ipAddress: str, port: int):
+    if CanIgnore():
+        return
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.sendto(content.encode(), (ipAddress, port))
 
