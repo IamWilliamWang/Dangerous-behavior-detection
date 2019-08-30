@@ -251,6 +251,11 @@ class SocketServer:
         print('Close connection from {0}'.format(self.address))
 
 
+def SendUDP(content: str, ipAddress: str, port: int):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.sendto(content.encode(), (ipAddress, port))
+
+
 class Detector:
     def __init__(self):
         self.__firstFramePosition = None  # 处理视频文件时记录的当前片段在视频中的开始帧号
@@ -349,7 +354,7 @@ class Detector:
     def StartUsingFileStream(self, videoFilename='开关柜3.mp4', compareLineCount=3,
                              videoClipCount=26):  # 2.mp4用10、3.mp4用26
         '''
-        针对视频文件进行的开关柜检测主函数
+        @Deprecated 针对视频文件进行的开关柜检测主函数
         :param videoFilename: 视频文件名
         :param compareLineCount: 需要比较几条线是一样的
         :param videoClipCount: 视频要分成多少段
@@ -431,9 +436,12 @@ class Detector:
         staticEdges = self.GetNoChangeEdges_fromSteam(inputStream, 20)
         staticLines = Transformer.GetLinesFromEdges(staticEdges)
         # 启动Socket，用于发送每帧
-        SEND_FRAMES = True
-        mSocket = SocketServer.StartServer()
-        mSocket.SendFrameShape(self.__originalFrames[0])
+        SEND_FRAMES = False
+        if SEND_FRAMES:
+            mSocket = SocketServer.StartServer()
+            mSocket.SendFrameShape(self.__originalFrames[0])
+        # 发送UDP报警信息
+        SEND_WARNING = True
         # 初始化处理参数
         showWarning = False  # 显示警告提示
         # 启动检测
@@ -460,6 +468,8 @@ class Detector:
                 PlotUtil.PaintLinesOnImage(frame, lines, compareLineCount, (255, 0, 0))
                 if showWarning:
                     PlotUtil.PutText(frame, 'Warning')
+                    if SEND_WARNING:
+                        SendUDP('01', '202.199.6.204', 5002)
                 if SEND_FRAMES:
                     mSocket.SendFrameImage(frame)
                 cv2.imshow('Result', frame)
@@ -472,7 +482,10 @@ class Detector:
 
 
 if __name__ == '__main__':
-    if len(sys.argv) is 1:
+    argn = len(sys.argv)
+    if argn is 1:
         Detector().StartUsingVideoStream()
-    else:
+    elif argn is 2:
         Detector().StartUsingVideoStream(sys.argv[1])
+    else:
+        Detector().StartUsingVideoStream(sys.argv[1], int(sys.argv[2]))
